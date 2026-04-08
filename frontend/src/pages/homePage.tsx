@@ -69,7 +69,7 @@ export const HomePage = () => {
             const form = new FormData();
             form.append("file", blob, "face.jpeg");
 
-            const res = await axios.post("http://localhost:8000/search/", form);
+            const res = await axios.post("https://studious-enigma-77wp5pqj6v63xxqj-8000.app.github.dev/search/", form);
 
             setStatus("result");
             setMode(null);
@@ -77,7 +77,7 @@ export const HomePage = () => {
             setPhoto(null);
             setShow("viewer");
             setMatches(res.data.matches);
-            setCurrentIndex(res.data.matches[0]?.image);
+            setCurrentIndex(0);
         } 
         catch (err: any) {
             setError("error");
@@ -106,6 +106,11 @@ export const HomePage = () => {
         setError("");
         setMatches([]);
         setCurrentIndex(0);
+    }
+
+    const handleFullImage = (i: number) => {
+        setShow("viewer");
+        setCurrentIndex(i);
     }
 
     return (
@@ -145,7 +150,7 @@ export const HomePage = () => {
                     <div className="w-full bg-white rounded-2xl px-8 py-3 shadow-lg shadow-gray-700">
                         <div className="mx-auto text-center text-2xl text-gray-700 font-semibold mb-3">Search a Face</div>
                         {mode === "capture" && <Webcam ref={webcamRef} screenshotFormat="image/jpeg" className="h-[55vh] rounded-2xl"/>}
-                        {mode === "preview" && photo && <img src={photo} alt="Preview" className="h-[55vh] rounded-2xl object-contain"/>}
+                        {mode === "preview" && photo && <img src={photo} alt="Preview" className="h-[55vh] mx-auto rounded-2xl"/>}
 
                         {error && 
                             <div className="w-full flex justify-center items-center gap-1 text-red-800 font-semibold">
@@ -209,32 +214,36 @@ export const HomePage = () => {
                     ) : (
                         <>
                             {show === "viewer" &&
-                                <div className="fixed w-full h-14 top-0 left-0 bg-black/60 z-3">
-                                    {matches.length > 1 && <div className="absolute top-4 left-4 text-white mx-6">
-                                        Photos: {currentIndex + 1} / {matches.length}
-                                    </div>}
-                                    <div className="absolute top-4 right-4 flex gap-4">
-                                        <a href={matches[currentIndex]?.image} download={`face_${currentIndex + 1}.png`} className="text-white cursor-pointer  hover:scale-110">
-                                            <Download size={20} />
-                                        </a>
-                                        <button onClick={() => setShow("gallery")} className="text-white cursor-pointer hover:scale-110">
-                                            <X size={24}/>
-                                        </button>
+                                <div className="bg-black/70">
+                                    <div className="fixed w-full h-14 top-0 left-0 bg-black/50 z-3">
+                                        {matches.length > 1 && 
+                                            <div className="absolute top-4 left-4 text-white mx-6">
+                                                Photos: {currentIndex + 1} / {matches.length}
+                                            </div>
+                                        }
+                                        <div className="absolute top-4 right-4 flex gap-4">
+                                            <a href={matches[currentIndex]?.image} download={`face_${currentIndex + 1}.jpeg`} className="text-white cursor-pointer  hover:scale-110">
+                                                <Download size={20} />
+                                            </a>
+                                            <button onClick={() => setShow("gallery")} className="text-white cursor-pointer hover:scale-110">
+                                                <X size={24}/>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="flex h-screen justify-between items-center gap-10">
-                                        <button>
-                                            <ChevronLeft size={64} className="text-gray-300 cursor-pointer hover:text-white hover:scale-110 transition" />
+                                    <div className="flex w-full h-screen justify-between items-center">
+                                        <button onClick={()=>setCurrentIndex(currentIndex - 1)} disabled={currentIndex == 0} className="text-gray-400 cursor-pointer disabled:cursor-not-allowed disabled:hover:text-gray-400 hover:text-white transition">
+                                            <ChevronLeft size={64} />
                                         </button>
-                                        <img src={matches[currentIndex]?.image} alt={`${matches[currentIndex]?.image}.jpeg`} />
-                                        <button>
-                                            <ChevronRight size={64} className="text-gray-300 cursor-pointer hover:text-white hover:scale-110 transition" />
+                                        <img src={`${matches[currentIndex]?.image}`} alt={`${currentIndex + 1}.jpeg`} className="h-screen object-contain"/>
+                                        <button onClick={()=>setCurrentIndex(currentIndex + 1)} disabled={currentIndex === matches.length - 1} className="text-gray-400 cursor-pointer disabled:cursor-not-allowed disabled:hover:text-gray-400 hover:text-white transition">
+                                            <ChevronRight size={64} />
                                         </button>
                                     </div>
                                 </div>
                             }
 
                             {show === "gallery" &&
-                                <div className="w-[90%] mx-auto px-10 py-6 bg-white rounded-xl shadow-lg shadow-gray-700">
+                                <div className="w-[90%] min-h-[90vh] mx-auto mt-8 mb-6 px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-700">
                                     <div className="flex justify-between items-center">
                                         <p className="text-4xl text-gray-700 text-semibold">Your Photos</p>
                                         <div>
@@ -243,10 +252,16 @@ export const HomePage = () => {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="my-4 grid grid-cols-4 gap-2">
+                                    <div className="my-4 grid grid-cols-4 gap-3">
                                         {matches.map((v, i) => (
-                                            <div key={i} className="rounded-xl">
-                                                <img src={v?.image} alt={`${v?.image}.jpeg`} className="object-contain"/>
+                                            <div key={i} className="mb-2">
+                                                <img onClick={() => handleFullImage(i)} src={v?.image} alt={`${v?.image}.jpeg`} className="rounded-lg cursor-pointer aspect-square object-cover"/>
+                                                <div className="flex mx-3 justify-between mt-1.5">
+                                                    <p className="text-sm text-gray-800 font-semibold">{`Face-${i + 1}.jpeg`}</p>
+                                                    <a href={matches[currentIndex]?.image} download={`face_${currentIndex + 1}.jpeg`} className="cursor-pointer text-blue-700 hover:text-blue-500 hover:scale-110">
+                                                        <Download size={20} />
+                                                    </a>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>

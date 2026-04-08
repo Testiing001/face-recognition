@@ -56,7 +56,7 @@ async def upload_photos(files: List[UploadFile] = File(...)):
         if not embeddings:
             continue
 
-        image_b64 = "data:image/png;base64," + base64.b64encode(data).decode("utf-8")
+        image_b64 = "data:image/jpeg;base64," + base64.b64encode(data).decode("utf-8")
 
         try:
             for embedding in embeddings:
@@ -85,7 +85,11 @@ def view_faces():
     cursor.close()
     conn.close()
 
-    faces = [{"id": r[0], "image": r[1]} for r in rows]
+    faces = [{
+        "id": r[0], 
+        "image": r[1]
+        } for r in rows
+    ]
     return {"total_faces": len(faces), "faces": faces}
 
 

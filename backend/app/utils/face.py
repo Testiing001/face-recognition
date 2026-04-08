@@ -15,7 +15,7 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.dot(normalize(a), normalize(b)))
 
 def decode_image_to_file(data: bytes) -> str:
-    tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+    tmp = tempfile.NamedTemporaryFile(suffix=".jpeg", delete=False)
     tmp.write(data)
     tmp.close()
     return tmp.name

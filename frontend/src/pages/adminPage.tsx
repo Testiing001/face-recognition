@@ -1,62 +1,111 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Upload, Trash2, Tag, LogOut } from "lucide-react";
+
+const BASE_URL = "https://studious-enigma-77wp5pqj6v63xxqj-8000.app.github.dev";
 
 interface ImageItem {
     id: number;
     image: string;
 }
 
-/* type Status = "images" | "preview";
- */
+const getAuthHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+});
+
 export const AdminPage = () => {
-    /* const [status, setStatus] = useState<Status>("images"); */
+    const navigate = useNavigate();
     const [images, setImages] = useState<ImageItem[]>([]);
     const [deleteMode, setDeleteMode] = useState(false);
     const [selected, setSelected] = useState<number[]>([]);
-/*     const [error, setError] = useState("");
- */
+    const [error, setError] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Fetch images on load
     useEffect(() => {
         const fetchImages = async () => {
             try {
-                const res = await axios.get("http://localhost:8000/admin/images");
-                setImages(res.data);
+                const res = await axios.get(`${BASE_URL}/admin/view/`, {
+                    headers: getAuthHeaders(),
+                });
+                setImages(res.data.faces);
             } catch (err: any) {
-/*                 setError(err);
- */            }
+                if (err.response?.status === 401) {
+                    localStorage.removeItem("token");
+                    navigate("/adminlogin");
+                } else {
+                    setError("Failed to load images");
+                }
+            }
         };
         fetchImages();
     }, []);
 
-    const handleUploadImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Upload images to backend
+    const handleUploadImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
 
-        const newImages: string[] = [];
-        const reader = new FileReader();
+        const formData = new FormData();
+        Array.from(files).forEach((file) => formData.append("files", file));
 
-        Array.from(files).forEach((file) => {
-            reader.onload = () => {
-                newImages.push(reader.result as string);
-                if (newImages.length === files.length) {
-                    setImages((prev) => [
-                        ...prev,
-                        ...newImages.map((img) => ({ id: prev.length + 1, image: img })),
-                    ]);
-/*                     setStatus("preview");
- */                }
-            };
-            reader.readAsDataURL(file);
-        });
+        try {
+            await axios.post(`${BASE_URL}/admin/upload/`, formData, {
+                headers: {
+                    ...getAuthHeaders(),
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            // Refresh images after upload
+            const res = await axios.get(`${BASE_URL}/admin/view/`, {
+                headers: getAuthHeaders(),
+            });
+            setImages(res.data.faces);
+        } catch (err: any) {
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                navigate("/adminlogin");
+            } else {
+                setError("Failed to upload images");
+            }
+        }
+
         e.target.value = "";
+    };
+
+    // Delete selected images
+    const handleDelete = async () => {
+        if (selected.length === 0) return;
+
+        try {
+            await axios.delete(`${BASE_URL}/admin/delete/`, {
+                headers: getAuthHeaders(),
+                data: selected,
+            });
+            setImages((prev) => prev.filter((img) => !selected.includes(img.id)));
+            setSelected([]);
+            setDeleteMode(false);
+        } catch (err: any) {
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                navigate("/adminlogin");
+            } else {
+                setError("Failed to delete images");
+            }
+        }
     };
 
     const toggleSelect = (id: number) => {
         setSelected((prev) =>
             prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
         );
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/adminlogin");
     };
 
     return (
@@ -75,17 +124,28 @@ export const AdminPage = () => {
                     />
 
                     <button
-                        onClick={() => setDeleteMode(!deleteMode)}
+                        onClick={() => { setDeleteMode(!deleteMode); setSelected([]); }}
                         className="flex items-center gap-2 px-4 py-2 cursor-pointer rounded-lg transition bg-red-700 hover:bg-red-600"
                     >
-                        <Trash2 size={16} />{deleteMode ? "Cancel Delete" : "Delete Photos"}
+                        <Trash2 size={16} />{deleteMode ? "Cancel" : "Delete Photos"}
                     </button>
+
+                    {deleteMode && selected.length > 0 && (
+                        <button
+                            onClick={handleDelete}
+                            className="flex items-center gap-2 px-4 py-2 cursor-pointer rounded-lg transition bg-red-500 hover:bg-red-400 font-semibold"
+                        >
+                            Confirm Delete ({selected.length})
+                        </button>
+                    )}
                 </div>
 
-                <button className="flex items-center gap-2 cursor-pointer">
+                <button onClick={handleLogout} className="flex items-center gap-2 cursor-pointer hover:text-red-400 transition">
                     <LogOut size={16} />Logout
                 </button>
             </div>
+
+            {error && <p className="mb-4 text-red-400 font-semibold">{error}</p>}
 
             {deleteMode && (
                 <p className="mb-4 text-red-400 font-semibold">
@@ -103,7 +163,7 @@ export const AdminPage = () => {
                             <img
                                 src={img.image}
                                 alt={`${img.id}`}
-                                className="w-full h-48 object-cover"
+                                className="w-full h-48 object-contain"
                             />
 
                             {deleteMode && (
