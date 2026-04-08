@@ -1,12 +1,33 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
 from typing import List
 import json
 import os
 import base64
+import jwt
+from dotenv import load_dotenv
 from app.db.connection import get_db_connection
 from app.utils.face import normalize, get_embeddings, decode_image_to_file
 
-router = APIRouter(prefix="/admin")
+load_dotenv()
+
+router = APIRouter()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+def get_current_admin(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        username = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return username
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 
 @router.post("/upload/")
 async def upload_photos(files: List[UploadFile] = File(...)):

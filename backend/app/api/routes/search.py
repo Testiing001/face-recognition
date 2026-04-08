@@ -1,9 +1,11 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 import json
+import os
+import numpy as np
 from app.db.connection import get_db_connection
 from app.utils.face import normalize, cosine_similarity, decode_image_to_file, get_embeddings
 
-router = APIRouter(prefix="/search")
+router = APIRouter()
 
 @router.post("/")
 async def search_face(file: UploadFile = File(...)):
@@ -13,10 +15,10 @@ async def search_face(file: UploadFile = File(...)):
     try:
         embeddings = get_embeddings(tmp_path)
     except Exception:
-        os.unlink(tmp_path)
         raise HTTPException(status_code=400, detail="No face detected. Please upload a clear image.")
     finally:
-        os.unlink(tmp_path)
+        if os.path.exists(tmp_path):  # ← safe single delete
+            os.unlink(tmp_path)
 
     if len(embeddings) != 1:
         raise HTTPException(
