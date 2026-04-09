@@ -39,6 +39,8 @@ export const HomePage = () => {
     };
 
     const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setError("");
+        
         const file = e.target.files?.[0];
         if (!file) return;
         
@@ -174,7 +176,7 @@ export const HomePage = () => {
                             </div>
                         )}
                         
-                        {mode === "preview" && photo && <img src={photo} alt="Preview" className="h-[55vh] mx-auto rounded-xl object-contain"/>}
+                        {mode === "preview" && photo && <img src={photo} alt="Preview" className="h-[55vh] mx-auto rounded-xl object-cover"/>}
 
                         {error && 
                             <div className="flex justify-center items-center mt-1 gap-1 text-sm text-red-800 font-semibold">
@@ -245,7 +247,7 @@ export const HomePage = () => {
                     ) : (
                         <>
                             {show === "viewer" &&
-                                <div className="bg-black/70">
+                                <div className="bg-black/90">
                                     <div className="fixed w-full h-14 top-0 left-0 bg-black/50 z-3">
                                         {matches.length > 1 && 
                                             <div className="absolute top-4 left-4 text-white mx-6">
@@ -284,7 +286,7 @@ export const HomePage = () => {
 
                             {show === "gallery" &&
                                 <div className="h-screen py-5 px-8">
-                                    <div className="h-full px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-500">
+                                    <div className="min-h-full px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-500">
                                         <div className="flex justify-between items-center">
                                             <p className="text-4xl text-gray-700 text-semibold">Your Photos</p>
                                             <button onClick={handleReset} className="flex gap-1 items-center text-lg font-semibold cursor-pointer text-indigo-700 hover:text-indigo-500 transition">
