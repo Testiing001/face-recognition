@@ -139,7 +139,7 @@ export const AdminPage = () => {
                 </div>
 
                 <button onClick={handleLogout} className="flex items-center gap-2 cursor-pointer hover:text-red-400 transition">
-                    <LogOut size={16} />Logout
+                    <LogOut size={16} /> Logout
                 </button>
             </div>
 
