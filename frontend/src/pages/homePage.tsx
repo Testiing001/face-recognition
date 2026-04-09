@@ -14,6 +14,8 @@ interface Match {
     face: number,
 }
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export const HomePage = () => {
     const [status, setStatus] = useState<Status>("idle");
     const [mode, setMode] = useState<Mode>(null);
@@ -75,7 +77,7 @@ export const HomePage = () => {
             const form = new FormData();
             form.append("file", blob, "face.jpeg");
 
-            const res = await axios.post("https://studious-enigma-77wp5pqj6v63xxqj-8000.app.github.dev/search/", form);
+            const res = await axios.post(`${BACKEND_URL}/search/`, form);
 
             setStatus("result");
             setMode(null);

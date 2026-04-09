@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export const AdminLogin = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
@@ -17,7 +19,7 @@ export const AdminLogin = () => {
             formData.append("username", username);
             formData.append("password", password);
 
-            const response = await axios.post("https://studious-enigma-77wp5pqj6v63xxqj-8000.app.github.dev/auth/login", formData, {
+            const response = await axios.post(`${BACKEND_URL}/auth/login`, formData, {
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"
                 }
