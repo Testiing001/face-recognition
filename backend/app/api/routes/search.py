@@ -40,7 +40,7 @@ async def search_face(file: UploadFile = File(...)):
         stored_vec = normalize(np.array(json.loads(emb_json)))
         score = round(float(cosine_similarity(query_embedding, stored_vec)), 2)
 
-        if score > 0.6:
+        if score > 0.5:
             matches.append({"face_id": face_id, "image": image_data, "score": score})
 
     matches.sort(key=lambda x: -x["score"])
