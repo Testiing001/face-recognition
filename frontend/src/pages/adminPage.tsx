@@ -214,21 +214,21 @@ export const AdminPage = () => {
                 </div>
             </div>
 
-            <div className="flex-1 p-6 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
                 {error && <p className="text-red-400 mb-4">{error}</p>}
                 
                 {view === "all" && !isLoading && (
                     images.length === 0 ? (
-                        <div className="flex items-center justify-center h-[60vh]">
+                        <div className="flex items-center justify-center h-screen">
                             <p className="text-gray-400 text-lg font-semibold">
                                 No photos in database
                             </p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-4 gap-4">
+                        <div className="grid grid-cols-4 gap-4 m-6">
                             {images.map((img) => (
-                                <div key={img.id} className="relative">
-                                    <img src={img.image} className="aspect-square object-cover rounded-lg" />
+                                <div key={img.id} className="relative bg-gray-800/40 rounded-xl">
+                                    <img src={img.image} className="aspect-square object-contain" />
                                     {deleteMode && (
                                         <input
                                             type="checkbox"
@@ -244,20 +244,18 @@ export const AdminPage = () => {
                 )}
 
                 {view === "faces" && (
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-4 gap-4 m-6">
                         {faceGroups.map((group, i) => (
-                            <div key={i} className="bg-gray-800 rounded-xl p-2 hover:scale-105 transition cursor-pointer">
+                            <div key={i} className="rounded-xl hover:scale-103 transition cursor-pointer">
                                 <img src={group.thumbnail}
                                     className="rounded-lg aspect-square object-cover" />
-                                <p className="text-center mt-2 text-sm text-gray-300">
-                                    Person {i + 1}
-                                </p>
                             </div>
                         ))}
                     </div>
                 )}
+                
                 {isLoading && (
-                    <div className="flex items-center justify-center h-[60vh]">
+                    <div className="flex items-center justify-center h-screen">
                         <p className="text-gray-400 text-lg">Loading photos...</p>
                     </div>
                 )}
