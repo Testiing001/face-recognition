@@ -2,10 +2,6 @@ import sys
 from app.utils.security import hash_password
 from app.db.connection import get_db_connection
 
-if len(sys.argv) != 3:
-    print("Usage: python add_admin_cli.py <username> <password>")
-    sys.exit(1)
-
 username = sys.argv[1]
 password = sys.argv[2]
 

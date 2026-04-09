@@ -88,7 +88,8 @@ export const HomePage = () => {
             setCurrentIndex(0);
         } 
         catch (err: any) {
-            setError(err.response?.data?.detail);
+            const message = err?.response?.data?.detail || err?.message || "Something went wrong";
+            setError(message);
         }
         finally {
             setIsSearching(false);
@@ -99,7 +100,7 @@ export const HomePage = () => {
         setPhoto(null);
         setMode("capture");
         setError("");
-        handleCamera();
+        setIsCameraLoading(true);
     }
 
     const handleCancel = () => {
@@ -119,7 +120,7 @@ export const HomePage = () => {
         setMatches([]);
         setCurrentIndex(0);
     }
-
+    
     const handleFullImage = (i: number) => {
         setShow("viewer");
         setCurrentIndex(i);
@@ -129,7 +130,7 @@ export const HomePage = () => {
         <>
             {status === "idle" && 
                 <>
-                    <h1 className="text-4xl text-center font-semibold text-white my-5">
+                    <h1 className="text-4xl text-center font-semibold text-black/70 my-5">
                         Welcome to Face Recognition System
                     </h1>
                     <div className="w-lg flex mx-auto p-6">
@@ -150,7 +151,6 @@ export const HomePage = () => {
                                         Upload Image
                                     </span>
                                 </button>
-                                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadImage} />
                             </div>
                         </div>
                     </div>
@@ -163,8 +163,8 @@ export const HomePage = () => {
                         <div className="mx-auto text-center text-2xl text-gray-700 font-semibold mb-3">Search a Face</div> 
                         {mode === "capture" && (     
                             <div className="relative h-[55vh] w-full rounded-xl bg-gray-100 overflow-hidden">
-                                <Webcam ref={webcamRef} screenshotFormat="image/jpeg" className="absolute inset-0 w-full h-full object-cover"
-        onUserMedia={() => setIsCameraLoading(false)}/>
+                                <Webcam ref={webcamRef} screenshotFormat="image/jpeg" onUserMedia={() => setIsCameraLoading(false)} 
+                                    onUserMediaError={() => {setIsCameraLoading(false); setError("Camera access denied");}}/>
                                 {isCameraLoading && (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                                         <div className="w-10 h-10 border-4 border-gray-800/40 border-t-transparent rounded-full animate-spin"></div>
@@ -174,7 +174,7 @@ export const HomePage = () => {
                             </div>
                         )}
                         
-                        {mode === "preview" && photo && <img src={photo} alt="Preview" className="mx-auto rounded-xl object-cover"/>}
+                        {mode === "preview" && photo && <img src={photo} alt="Preview" className="h-[55vh] mx-auto rounded-xl object-contain"/>}
 
                         {error && 
                             <div className="flex justify-center items-center mt-1 gap-1 text-sm text-red-800 font-semibold">
@@ -208,7 +208,6 @@ export const HomePage = () => {
                                         <button onClick={() => fileInputRef.current?.click()} className="flex flex-1.5 px-3 items-center justify-center gap-1 py-2 bg-green-700 rounded-lg cursor-pointer hover:bg-green-600 transition">
                                             <Upload size={16} /> Upload Another
                                         </button>
-                                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadImage}/>
                                     </>
                                 }
                                 <button onClick={handleCancel} className="flex flex-1 items-center justify-center gap-1 py-2 bg-red-600 rounded-lg cursor-pointer hover:bg-red-500 transition">
@@ -284,33 +283,35 @@ export const HomePage = () => {
                             }
 
                             {show === "gallery" &&
-                                <div className="w-[90%] min-h-[90vh] mx-auto mt-8 mb-6 px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-700">
-                                    <div className="flex justify-between items-center">
-                                        <p className="text-4xl text-gray-700 text-semibold">Your Photos</p>
-                                        <button onClick={handleReset} className="flex gap-1 items-center text-lg font-semibold cursor-pointer text-indigo-700 hover:text-indigo-500 transition">
-                                            <RotateCcw size={18} /> Search Again
-                                        </button>   
-                                    </div>
-                                    <div className="my-4 grid grid-cols-4 gap-4">
-                                        {matches.map((v, i) => (
-                                            <div key={i} className="mb-2">
-                                                <div className="relative group transition-transform duration-300 hover:scale-103">
-                                                    <img src={v?.image} alt={`${v?.image}.jpeg`}
-                                                        className="aspect-square object-cover rounded-xl transition-transform duration-300"/>
-                                                    <div onClick={() => handleFullImage(i)} className="absolute inset-0 flex justify-center items-center hover:bg-black/10 rounded-xl cursor-pointer">
-                                                        <Maximize size={24} className="text-white opacity-0 group-hover:opacity-100 transition" />
+                                <div className="h-screen py-5 px-8">
+                                    <div className="h-full px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-500">
+                                        <div className="flex justify-between items-center">
+                                            <p className="text-4xl text-gray-700 text-semibold">Your Photos</p>
+                                            <button onClick={handleReset} className="flex gap-1 items-center text-lg font-semibold cursor-pointer text-indigo-700 hover:text-indigo-500 transition">
+                                                <RotateCcw size={18} /> Search Again
+                                            </button>   
+                                        </div>
+                                        <div className="my-4 grid grid-cols-4 gap-4">
+                                            {matches.map((v, i) => (
+                                                <div key={v.id} className="mb-2">
+                                                    <div className="relative group transition-transform duration-300 hover:scale-103">
+                                                        <img src={v?.image} alt={`${v?.image}.jpeg`}
+                                                            className="relative rounded-xl transition-transform duration-300"/>
+                                                        <div onClick={() => handleFullImage(i)} className="absolute inset-0 flex justify-center items-center hover:bg-black/10 rounded-xl cursor-pointer">
+                                                            <Maximize size={24} className="text-white opacity-0 group-hover:opacity-100 transition" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex mx-3 justify-between mt-1.5">
+                                                        <p className="text-gray-800 font-semibold">{`Face-${i + 1}.jpeg`}</p>
+                                                        <a href={v.image} download={`Face_${i + 1}.jpeg`}
+                                                            className="cursor-pointer text-blue-700 hover:text-blue-500"
+                                                        >
+                                                            <Download size={22} />
+                                                        </a>
                                                     </div>
                                                 </div>
-                                                <div className="flex mx-3 justify-between mt-1.5">
-                                                    <p className="text-gray-800 font-semibold">{`Face-${i + 1}.jpeg`}</p>
-                                                    <a href={matches[currentIndex]?.image} download={`face_${currentIndex + 1}.jpeg`}
-                                                        className="cursor-pointer text-blue-700 hover:text-blue-500"
-                                                    >
-                                                        <Download size={22} />
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             }
@@ -318,6 +319,7 @@ export const HomePage = () => {
                     )}
                 </>
             }
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadImage}/>
         </>
     );
 }
