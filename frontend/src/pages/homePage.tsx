@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Camera, ChevronLeft, ChevronRight, Download, FolderOpen, ImageIcon, RotateCcw, ScanFace, Search, Upload, UserX, X, XCircle } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Download, FolderOpen, ImageIcon, Maximize, RotateCcw, ScanFace, Search, Upload, UserX, X, XCircle } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import Webcam from "react-webcam";
 
@@ -23,14 +23,18 @@ export const HomePage = () => {
     const [error, setError] = useState<string>("");
     const [matches, setMatches] = useState<Match[]>([]);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [isCameraLoading, setIsCameraLoading] = useState(false);
+    const [isImageLoading, setIsImageLoading] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
 
     const webcamRef = useRef<Webcam>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleCamera = () => {
+    const handleCamera = async () => {
         setStatus("scan");
         setMode("capture");
-    }
+        setIsCameraLoading(true); 
+    };
 
     const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -64,6 +68,8 @@ export const HomePage = () => {
 
     const handleSearch = async (imageData: string) => {
         setError("");
+        setIsSearching(true);
+
         try {
             const blob = await fetch(imageData).then((r) => r.blob());
             const form = new FormData();
@@ -80,14 +86,18 @@ export const HomePage = () => {
             setCurrentIndex(0);
         } 
         catch (err: any) {
-            setError("error");
+            setError(err.response?.data?.detail);
+        }
+        finally {
+            setIsSearching(false);
         }
     };
 
     const handleRetake = () => {
-        setMode("capture");
         setPhoto(null);
+        setMode("capture");
         setError("");
+        handleCamera();
     }
 
     const handleCancel = () => {
@@ -147,31 +157,43 @@ export const HomePage = () => {
 
             {status === "scan" &&
                 <div className="w-lg h-screen mx-auto flex justify-center items-center">
-                    <div className="w-full bg-white rounded-2xl px-8 py-3 shadow-lg shadow-gray-700">
-                        <div className="mx-auto text-center text-2xl text-gray-700 font-semibold mb-3">Search a Face</div>
-                        {mode === "capture" && <Webcam ref={webcamRef} screenshotFormat="image/jpeg" className="h-[55vh] rounded-2xl"/>}
-                        {mode === "preview" && photo && <img src={photo} alt="Preview" className="h-[55vh] mx-auto rounded-2xl"/>}
+                    <div className="w-full bg-white rounded-2xl px-8 py-3 shadow-lg shadow-gray-700 relative">
+                        <div className="mx-auto text-center text-2xl text-gray-700 font-semibold mb-3">Search a Face</div> 
+                        {mode === "capture" && (     
+                            <div className="relative h-[55vh] w-full rounded-xl bg-gray-100 overflow-hidden">
+                                <Webcam ref={webcamRef} screenshotFormat="image/jpeg" className="absolute inset-0 w-full h-full object-cover"
+        onUserMedia={() => setIsCameraLoading(false)}/>
+                                {isCameraLoading && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                                        <div className="w-10 h-10 border-4 border-gray-800/40 border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="font-semibold text-gray-700">Opening Camera...</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        
+                        {mode === "preview" && photo && <img src={photo} alt="Preview" className="mx-auto rounded-xl object-cover"/>}
 
                         {error && 
-                            <div className="w-full flex justify-center items-center gap-1 text-red-800 font-semibold">
+                            <div className="flex justify-center items-center mt-1 gap-1 text-sm text-red-800 font-semibold">
                                 <XCircle size={15} /> {error}
                             </div>
                         }
 
                         {mode === "capture" && 
                             <div className="w-sm flex mx-auto mt-3 font-semibold gap-8 text-white">
-                                    <button onClick={handleCapturePhoto} className="w-full flex items-center justify-center gap-1 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg cursor-pointer transition">
-                                        <ImageIcon size={18} /> Take Photo
-                                    </button>
-                                    <button onClick={handleCancel} className="w-full flex items-center justify-center gap-1 py-2 bg-red-600 rounded-lg cursor-pointer hover:bg-red-500 transition">
-                                        <X size={18} /> Cancel
-                                    </button>
+                                <button onClick={handleCapturePhoto} className="w-full flex items-center justify-center gap-1 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg cursor-pointer transition">
+                                    <ImageIcon size={18} /> Take Photo
+                                </button>
+                                <button onClick={handleCancel} className="w-full flex items-center justify-center gap-1 py-2 bg-red-600 rounded-lg cursor-pointer hover:bg-red-500 transition">
+                                    <X size={18} /> Cancel
+                                </button>
                             </div>
                         }
 
                         {mode === "preview" &&
                             <div className="w-md flex mx-auto mt-3 font-semibold gap-4 text-white">
-                                <button onClick={() => photo && handleSearch(photo)} className="flex flex-1 items-center justify-center gap-1 py-2 rounded-lg cursor-pointer bg-indigo-600 hover:bg-indigo-500 transition">
+                                <button disabled={isSearching} onClick={() => photo && handleSearch(photo)} className="flex flex-1 items-center justify-center gap-1 py-2 rounded-lg cursor-pointer bg-indigo-600 hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed">
                                     <Search size={16} /> Search
                                 </button>
                                 {source === "camera" &&
@@ -192,6 +214,14 @@ export const HomePage = () => {
                                 </button>
                             </div>
                         }
+                        {isSearching && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl z-5">
+                                <div className="flex flex-col items-center gap-3 text-white">
+                                    <div className="w-10 h-10 text-gray-700 border-5 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+                                    <p className="font-semibold text">Searching your face...</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             }
@@ -199,7 +229,7 @@ export const HomePage = () => {
             {status === "result" && 
                 <>
                     {matches.length === 0 ? (
-                        <div className="w-lg mx-auto flex justify-center items-center">
+                        <div className="w-lg h-screen mx-auto flex justify-center items-center">
                             <div className="w-full h-[70vh] rounded-2xl px-10 py-4 bg-white shadow-lg shadow-gray-700">
                                 <button onClick={handleReset} className="w-full flex justify-end items-center gap-1 mb-4 font-semibold cursor-pointer text-indigo-700 hover:text-indigo-600 transition">
                                     <RotateCcw size={18} /> Search Again
@@ -222,22 +252,31 @@ export const HomePage = () => {
                                             </div>
                                         }
                                         <div className="absolute top-4 right-4 flex gap-4">
-                                            <a href={matches[currentIndex]?.image} download={`face_${currentIndex + 1}.jpeg`} className="text-white cursor-pointer  hover:scale-110">
-                                                <Download size={20} />
+                                            <a href={matches[currentIndex]?.image} download={`face_${currentIndex + 1}.jpeg`} className="text-gray-100 hover:text-white cursor-pointer hover:scale-120 transition-transform">
+                                                <Download size={22} />
                                             </a>
-                                            <button onClick={() => setShow("gallery")} className="text-white cursor-pointer hover:scale-110">
-                                                <X size={24}/>
+                                            <button onClick={() => setShow("gallery")} className="text-gray-100 hover:text-white cursor-pointer hover:scale-120 transition-transform">
+                                                <X size={26}/>
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="flex w-full h-screen justify-between items-center">
-                                        <button onClick={()=>setCurrentIndex(currentIndex - 1)} disabled={currentIndex == 0} className="text-gray-400 cursor-pointer disabled:cursor-not-allowed disabled:hover:text-gray-400 hover:text-white transition">
+                                    <div className="relative flex w-full h-screen justify-between items-center">
+                                        <button onClick={()=>setCurrentIndex(currentIndex - 1)} disabled={currentIndex == 0} className="text-gray-300 cursor-pointer disabled:cursor-not-allowed disabled:hover:text-gray-300 hover:text-white transition">
                                             <ChevronLeft size={64} />
                                         </button>
-                                        <img src={`${matches[currentIndex]?.image}`} alt={`${currentIndex + 1}.jpeg`} className="h-screen object-contain"/>
-                                        <button onClick={()=>setCurrentIndex(currentIndex + 1)} disabled={currentIndex === matches.length - 1} className="text-gray-400 cursor-pointer disabled:cursor-not-allowed disabled:hover:text-gray-400 hover:text-white transition">
+                                        <img src={`${matches[currentIndex]?.image}`} alt={`${currentIndex + 1}.jpeg`} onLoad={() => setIsImageLoading(false)}
+                                            onLoadStart={() => setIsImageLoading(true)} className="h-screen object-contain" />
+                                        <button onClick={()=>setCurrentIndex(currentIndex + 1)} disabled={currentIndex === matches.length - 1} className="text-gray-300 cursor-pointer disabled:cursor-not-allowed disabled:hover:text-gray-300 hover:text-white transition">
                                             <ChevronRight size={64} />
                                         </button>
+                                        {isImageLoading && (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-5">
+                                                <div className="flex flex-col items-center gap-2 text-white">
+                                                    <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    <p className="font-semibold">Loading image...</p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             }
@@ -246,20 +285,26 @@ export const HomePage = () => {
                                 <div className="w-[90%] min-h-[90vh] mx-auto mt-8 mb-6 px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-700">
                                     <div className="flex justify-between items-center">
                                         <p className="text-4xl text-gray-700 text-semibold">Your Photos</p>
-                                        <div>
-                                            <button onClick={handleReset} className="flex gap-1 items-center text-lg font-semibold cursor-pointer text-indigo-700 hover:text-indigo-600 transition">
-                                                <RotateCcw size={18} /> Search Again
-                                            </button>
-                                        </div>
+                                        <button onClick={handleReset} className="flex gap-1 items-center text-lg font-semibold cursor-pointer text-indigo-700 hover:text-indigo-500 transition">
+                                            <RotateCcw size={18} /> Search Again
+                                        </button>   
                                     </div>
-                                    <div className="my-4 grid grid-cols-4 gap-3">
+                                    <div className="my-4 grid grid-cols-4 gap-4">
                                         {matches.map((v, i) => (
                                             <div key={i} className="mb-2">
-                                                <img onClick={() => handleFullImage(i)} src={v?.image} alt={`${v?.image}.jpeg`} className="rounded-lg cursor-pointer aspect-square object-cover"/>
+                                                <div className="relative group transition-transform duration-300 hover:scale-103">
+                                                    <img src={v?.image} alt={`${v?.image}.jpeg`}
+                                                        className="aspect-square object-cover rounded-xl transition-transform duration-300"/>
+                                                    <div onClick={() => handleFullImage(i)} className="absolute inset-0 flex justify-center items-center hover:bg-black/10 rounded-xl cursor-pointer">
+                                                        <Maximize size={24} className="text-white opacity-0 group-hover:opacity-100 transition" />
+                                                    </div>
+                                                </div>
                                                 <div className="flex mx-3 justify-between mt-1.5">
-                                                    <p className="text-sm text-gray-800 font-semibold">{`Face-${i + 1}.jpeg`}</p>
-                                                    <a href={matches[currentIndex]?.image} download={`face_${currentIndex + 1}.jpeg`} className="cursor-pointer text-blue-700 hover:text-blue-500 hover:scale-110">
-                                                        <Download size={20} />
+                                                    <p className="text-gray-800 font-semibold">{`Face-${i + 1}.jpeg`}</p>
+                                                    <a href={matches[currentIndex]?.image} download={`face_${currentIndex + 1}.jpeg`}
+                                                        className="cursor-pointer text-blue-700 hover:text-blue-500"
+                                                    >
+                                                        <Download size={22} />
                                                     </a>
                                                 </div>
                                             </div>
