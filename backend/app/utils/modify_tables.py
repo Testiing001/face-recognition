@@ -4,7 +4,7 @@ conn = get_db_connection()
 cursor = conn.cursor()
 
 queries = [
-    "ALTER TABLE faces MODIFY COLUMN embedded_data JSON NOT NULL",
+    "ALTER TABLE images MODIFY COLUMN image_data LONGBLOB NOT NULL",
 ]
 
 try:

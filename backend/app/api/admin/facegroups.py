@@ -55,13 +55,14 @@ def get_group_detail(group_id: int):
             SELECT DISTINCT i.id, i.image_data 
             FROM faces f
             JOIN images i ON f.image_id = i.id 
-            WHERE f.group_id = %s", (group_id,)
-        """)
+            WHERE f.group_id = %s""", (group_id,)
+        )
 
         rows = cursor.fetchall()
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch group images")
     finally:
         cursor.close()

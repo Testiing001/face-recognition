@@ -38,67 +38,61 @@ async def upload_photos(files: List[UploadFile] = File(...)):
     cursor = conn.cursor()
     stored_faces = 0
 
-    try:
-        for file in files:
-            data = await file.read()
-            tmp_path = decode_image_to_file(data)
+    for file in files:
+        data = await file.read()
+        tmp_path = decode_image_to_file(data)
 
-            try:
-                embeddings = get_embeddings(tmp_path)
-            except Exception as e:
-                print(f"Error: {e}")
-                conn.rollback()
-                raise HTTPException(status_code=500, detail="Failed to store image")
-                continue
-            finally:
-                if os.path.exists(tmp_path):
-                    os.unlink(tmp_path)
+        try:
+            embeddings = get_embeddings(tmp_path)
+        except Exception:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail="Failed to store image")
+            continue
+        finally:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
 
-            if not embeddings:
-                continue
+        if not embeddings:
+            continue
 
-            image = "data:image/jpeg;base64," + base64.b64encode(data).decode("utf-8")
-            try:
-                cursor.execute("INSERT INTO images (image_data) VALUES (%s)",(image,))
-                image_id = cursor.lastrowid
-            except Exception as e:
-                print(f"Error: {e}")
-                conn.rollback()
-                raise HTTPException(status_code=500, detail="Failed to store image")
+        image = "data:image/jpeg;base64," + base64.b64encode(data).decode("utf-8")
+        try:
+            cursor.execute("INSERT INTO images (image_data) VALUES (%s)",(image,))
+            image_id = cursor.lastrowid
+        except Exception:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail="Failed to store image")
 
-            for embedding in embeddings:
-                normalized_emb = normalize(np.array(embedding))
-                group_id = find_matching_group(cursor, normalized_emb)
+        for embedding in embeddings:
+            normalized_emb = normalize(np.array(embedding))
+            group_id = find_matching_group(cursor, normalized_emb)
 
-                if group_id is None:
-                    try:
-                        cursor.execute("INSERT INTO groups (face_id) VALUES (NULL)")
-                        group_id = cursor.lastrowid
-                    except Exception as e:
-                        print(f"Error: {e}")
-                        conn.rollback()
-                        raise HTTPException(status_code=500, detail="Failed to store image")
-
+            if group_id is None:
                 try:
-                    cursor.execute(
-                        "INSERT INTO faces (image_id, group_id, embedded_data) VALUES (%s, %s, %s)",
-                        (image_id, group_id, json.dumps(embedding))
-                    )
-                    face_id = cursor.lastrowid
-
-                    cursor.execute("UPDATE groups SET face_id = %s WHERE id = %s AND face_id IS NULL",
-                        (face_id, group_id))
-                    
-                    stored_faces += 1
-                except Exception as e:
-                    print(f"Error: {e}")
+                    cursor.execute("INSERT INTO groups (face_id) VALUES (NULL)")
+                    group_id = cursor.lastrowid
+                except Exception:
                     conn.rollback()
                     raise HTTPException(status_code=500, detail="Failed to store image")
 
-        conn.commit()
-    finally:
-        cursor.close()
-        conn.close()
+            try:
+                cursor.execute(
+                    "INSERT INTO faces (image_id, group_id, embedded_data) VALUES (%s, %s, %s)",
+                    (image_id, group_id, json.dumps(embedding))
+                )
+                face_id = cursor.lastrowid
+
+                cursor.execute("UPDATE groups SET face_id = %s WHERE id = %s AND face_id IS NULL",
+                    (face_id, group_id))
+                
+                stored_faces += 1
+            except Exception:
+                conn.rollback()
+                raise HTTPException(status_code=500, detail="Failed to store image")
+
+    conn.commit()
+    cursor.close()
+    conn.close()
 
     return {
         "stored_faces": stored_faces, 

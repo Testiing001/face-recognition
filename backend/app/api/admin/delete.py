@@ -16,6 +16,7 @@ def delete_faces(ids: List[int]):
     cursor = conn.cursor()
     try:
         placeholders = ",".join(["%s"] * len(ids))
+        cursor.execute(f"UPDATE groups SET face_id = NULL WHERE face_id IN (SELECT id FROM faces WHERE image_id IN ({placeholders}))", ids)
         cursor.execute(f"DELETE FROM images WHERE id IN ({placeholders})", ids)
         deleted_count = cursor.rowcount
 

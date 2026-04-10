@@ -6,7 +6,7 @@ export const FaceGroups = () => {
     return (
         <>
             {photos.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-6 mb-4 gap-4">
                     {faceGroups.map((group) => (
                         <div
                             key={group.group_id}
