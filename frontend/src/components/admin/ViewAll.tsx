@@ -1,7 +1,9 @@
 import { useAdmin } from "../../context/AdminContext";
 
 export const ViewAll = () => {
-    const { photos, deleteMode, selected, toggleSelect } = useAdmin();
+    const { photos, deleteMode, activeAction, selected, toggleSelect } = useAdmin();
+
+    const noPhotoMessage = activeAction === "view" ? "No photos in database" : (activeAction === "delete" ? "No photos to delete" : "");
 
     return (
         <>
@@ -26,7 +28,7 @@ export const ViewAll = () => {
             </div>
             {photos.length === 0 &&
                 <div className="flex items-center justify-center h-[80vh]">
-                    <p className="text-gray-400 text-lg font-semibold">No photos in database</p>
+                    <p className="text-gray-400 text-lg font-semibold">{noPhotoMessage}</p>
                 </div>
             }
         </>

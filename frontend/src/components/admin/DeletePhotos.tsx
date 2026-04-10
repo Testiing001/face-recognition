@@ -12,10 +12,10 @@ export const DeletePhotos = () => {
 
     return (
         <>
-            <div className="w-full mx-3">
-                <p className="text-red-600/90 font-semibold">Select images to delete</p>
-                <div className="flex justify-between items-center gap-3">
-                    {photos.length > 0 && (
+            {photos.length > 0 &&
+                <div className="w-full mx-3">
+                    <p className="text-red-600/90 font-semibold">Select images to delete</p>
+                    <div className="flex justify-between items-center gap-3">
                         <label className="flex items-center gap-2 font-semibold text-gray-700 cursor-pointer">
                             <input
                                 type="checkbox"
@@ -25,29 +25,29 @@ export const DeletePhotos = () => {
                             />
                             Select All
                         </label>
-                    )}
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => setShowConfirm(true)}
-                            disabled={selected.length === 0}
-                            className={`px-3 py-2 flex items-center gap-1 rounded-lg text-white ${
-                                selected.length
-                                    ? "bg-red-600 hover:bg-red-500 cursor-pointer"
-                                    : "bg-red-800 cursor-not-allowed"
-                            }`}
-                        >
-                            <Trash2 size={16} />
-                            Delete {selected.length > 0 ? `(${selected.length})` : ""}
-                        </button>
-                        <button
-                            onClick={handleCancel}
-                            className="px-3 py-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900"
-                        >
-                            Cancel
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setShowConfirm(true)}
+                                disabled={selected.length === 0}
+                                className={`px-3 py-2 flex items-center gap-1 rounded-lg text-white ${
+                                    selected.length
+                                        ? "bg-red-600 hover:bg-red-500 cursor-pointer"
+                                        : "bg-red-800 cursor-not-allowed"
+                                }`}
+                            >
+                                <Trash2 size={16} />
+                                Delete {selected.length > 0 ? `(${selected.length})` : ""}
+                            </button>
+                            <button
+                                onClick={handleCancel}
+                                className="px-3 py-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900"
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
             {showConfirm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl p-6 shadow-xl w-sm flex flex-col gap-4">

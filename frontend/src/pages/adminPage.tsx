@@ -7,7 +7,7 @@ import { GroupDetail } from "../components/admin/GroupDetail";
 
 const AdminPageInner = () => {
     const {
-        username, view, activeAction, deleteMode, error, 
+        username, view, activeAction, deleteMode, error, photos, 
         isLoading, isUploading, fileInputRef, selectedGroup,
         handleViewAll, handleFaceGroups, handleUpload,
         handleDelete, handleUploadPhotos, handleLogout,
@@ -52,7 +52,7 @@ const AdminPageInner = () => {
             <div className="flex-1 bg-white text-gray-900 overflow-y-auto relative px-6 pb-6">
                 {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-                {view !== "group" && 
+                {(view !== "group" && photos.length > 0) && 
                     <div className="min-h-[80px] mx-3 flex justify-between items-center">
                         {deleteMode && activeAction === "delete" && <DeletePhotos />}
                     </div>

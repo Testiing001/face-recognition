@@ -190,7 +190,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const handleViewAll = () => {
         setDeleteMode(false);
         setError("");
-        if(view === "all")      return; 
+        if(view === "all" && photos.length > 0)      return; 
         setView("all"); 
         fetchPhotos();
         setActiveAction("view"); 
@@ -200,10 +200,10 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         setDeleteMode(false);
         setError("");
         setSelectedGroup(null);
-        if(activeAction === "faces")    return;
-        setView("group"); 
+        setActiveAction("faces");
+        setView("group");
+        if(activeAction === "faces" || photos.length === 0)    return;
         fetchFaceGroups(); 
-        setActiveAction("faces"); 
     };
 
     const handleUpload = () => {
