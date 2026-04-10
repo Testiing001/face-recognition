@@ -1,5 +1,5 @@
 import { Download, Maximize, RotateCcw } from "lucide-react";
-import { useFace } from "../context/FaceContext";
+import { useFace } from "../../context/HomeContext";
 
 export const Gallery = () => {
     const { matches, handleReset, handleFullImage } = useFace();

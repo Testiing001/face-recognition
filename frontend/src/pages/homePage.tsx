@@ -1,7 +1,7 @@
-import { FaceProvider, useFace } from "../context/FaceContext";
-import { Options } from "../components/Options";
-import { Scan } from "../components/Scan";
-import { Results } from "../components/Results";
+import { FaceProvider, useFace } from "../context/HomeContext";
+import { Options } from "../components/home/Options";
+import { Scan } from "../components/home/Scan";
+import { Results } from "../components/home/Results";
 
 const HomePageInner = () => {
     const { status, fileInputRef, handleUploadImage } = useFace();
@@ -9,7 +9,9 @@ const HomePageInner = () => {
     return (
         <>
             {status === "options" && <Options />}
+
             {status === "scan" && <Scan />}
+            
             {status === "result" && <Results />}
 
             <input 

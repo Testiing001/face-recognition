@@ -1,5 +1,5 @@
 import { ImageIcon, RotateCcw, Search, Upload, X, XCircle } from "lucide-react";
-import { useFace } from "../context/FaceContext";
+import { useFace } from "../../context/HomeContext";
 import { CameraCapture } from "./CameraCapture";
 
 export const Scan = () => {
