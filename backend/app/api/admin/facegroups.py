@@ -17,7 +17,7 @@ def get_face_groups():
                 i.image_data AS thumbnail,
                 COUNT(DISTINCT f.image_id) AS total_photos
             FROM groups g
-            JOIN faces f_thumb ON g.thumbnail_id = f_thumb.id
+            JOIN faces f_thumb ON g.face_id = f_thumb.id
             JOIN images i ON f_thumb.image_id = i.id
             JOIN faces f ON f.group_id = g.id
             GROUP BY g.id, i.image_data
