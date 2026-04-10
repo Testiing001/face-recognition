@@ -51,9 +51,11 @@ const AdminPageInner = () => {
             <div className="flex-1 bg-white text-gray-900 overflow-y-auto relative px-6 pb-6">
                 {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-                <div className="min-h-[80px] mx-3 flex justify-between items-center">
-                    {deleteMode && view === "all" && <DeletePhotos />}
-                </div>
+                {view !== "group" && 
+                    <div className="min-h-[80px] mx-3 flex justify-between items-center">
+                        {deleteMode && activeAction === "delete" && <DeletePhotos />}
+                    </div>
+                }
 
                 {(isLoading || isUploading) && (
                     <div className="flex items-center justify-center h-[80vh]">
@@ -65,7 +67,7 @@ const AdminPageInner = () => {
 
                 {view === "all" && !isLoading && !isUploading && <ViewAll />}
                 
-                {view === "faces" && <FaceGroups />}
+                {view === "group" && <FaceGroups />}
             </div>
         </div>
     );

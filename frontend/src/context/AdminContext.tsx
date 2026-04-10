@@ -11,7 +11,7 @@ export interface PhotoItem {
 }
 
 export type Action = "view" | "faces" | "upload" | "delete";
-export type View = "all" | "faces";
+export type View = "all" | "group";
 
 const getAuthHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -87,9 +87,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const fetchPhotos = async () => {
-        if(view === "all")    return;
-
         setError("");
+        setDeleteMode(false);
         setIsLoading(true);
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/view/`, { headers: getAuthHeaders() });
@@ -102,9 +101,9 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const fetchFaceGroups = async () => {
-        if(view === "faces")    return;
-        
+        if(view === "group")    return;
         setError("");
+        setDeleteMode(false);
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/facegroups/`, { headers: getAuthHeaders() });
             setFaceGroups(res.data.groups);
@@ -114,9 +113,9 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleUploadPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setError("");
         const files = e.target.files;
         if (!files) return;
-        setError("");
         setIsUploading(true);
         setActiveAction("upload");
         const formData = new FormData();
@@ -138,6 +137,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     const handleDeletePhotos = async () => {
         setError("");
+        setView("all");
         if (selected.length === 0) return;
         try {
             await axios.delete(`${BACKEND_URL}/admin/delete/`, {
@@ -153,16 +153,17 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const handleViewAll = () => { 
+    const handleViewAll = () => {
+        setDeleteMode(false);
+        if(view === "all")      return; 
+        setError("");
         setView("all"); 
-        setDeleteMode(false); 
-        setError(""); 
         fetchPhotos(); 
         setActiveAction("view"); 
     };
 
     const handleFaceGroups = () => { 
-        setView("faces"); 
+        setView("group"); 
         setDeleteMode(false); 
         setError(""); 
         fetchFaceGroups(); 

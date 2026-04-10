@@ -1,9 +1,11 @@
 import mysql.connector
 from mysql.connector import Error
+from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 def get_db_connection():
     try:
@@ -13,8 +15,11 @@ def get_db_connection():
             password=os.getenv("DB_PASSWORD"),
             database=os.getenv("DB_NAME")
         )
+
         if connection.is_connected():
             return connection
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
-        return None
+        else:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+
+    except Error:
+        raise HTTPException(status_code=500, detail="Database connection failed")
