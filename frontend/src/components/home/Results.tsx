@@ -1,4 +1,4 @@
-import { useFace } from "../context/FaceContext";
+import { useFace } from "../../context/HomeContext";
 import { Gallery } from "./Gallery";
 import { Viewer } from "./Viewer";
 import { NoResults } from "./NoResults";

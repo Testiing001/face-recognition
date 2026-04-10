@@ -110,7 +110,7 @@ export const FaceProvider = ({ children }: { children: React.ReactNode }) => {
             setMode(null);
             setSource(null);
             setPhoto(null);
-            setShow("viewer");
+            setShow("gallery");
             setMatches(res.data.matches);
             setCurrentIndex(0);
         } catch (err: any) {

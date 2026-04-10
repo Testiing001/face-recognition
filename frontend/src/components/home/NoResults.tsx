@@ -1,5 +1,5 @@
 import { RotateCcw, UserX } from "lucide-react";
-import { useFace } from "../context/FaceContext";
+import { useFace } from "../../context/HomeContext";
 
 export const NoResults = () => {
     const { handleReset } = useFace();

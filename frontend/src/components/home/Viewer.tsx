@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
-import { useFace } from "../context/FaceContext";
+import { useFace } from "../../context/HomeContext";
 
 export const Viewer = () => {
     const {
@@ -10,11 +10,13 @@ export const Viewer = () => {
     return (
         <div className="bg-black/90">
             <div className="fixed w-full h-14 top-0 left-0 bg-black/50 z-3">
+                
                 {matches.length > 1 && (
                     <div className="absolute top-4 left-4 text-white mx-6">
                         Photos: {currentIndex + 1} / {matches.length}
                     </div>
                 )}
+
                 <div className="absolute top-4 right-4 flex gap-4">
                     <a
                         href={matches[currentIndex]?.image}
