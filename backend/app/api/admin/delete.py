@@ -19,7 +19,14 @@ def delete_faces(ids: List[int]):
         cursor.execute(f"DELETE FROM images WHERE id IN ({placeholders})", ids)
         deleted_count = cursor.rowcount
 
-        cursor.execute(f"DELETE FROM groups WHERE id NOT IN ( SELECT DISTINCT group_id FROM faces WHERE group_id IS NOT NULL)")
+        cursor.execute("""
+            DELETE FROM groups WHERE id NOT IN (
+                SELECT group_id FROM (
+                    SELECT DISTINCT group_id FROM faces WHERE group_id IS NOT NULL
+                ) AS temp
+            )
+        """)
+
         conn.commit()
     except Exception:
         conn.rollback()
