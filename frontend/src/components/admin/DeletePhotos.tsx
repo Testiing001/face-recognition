@@ -37,7 +37,7 @@ export const DeletePhotos = () => {
                     </button>
                     <button
                         onClick={handleCancel}
-                        className="px-3 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-gray-900"
+                        className="px-3 py-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900"
                     >
                         Cancel
                     </button>

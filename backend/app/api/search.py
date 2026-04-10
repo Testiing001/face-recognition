@@ -29,11 +29,19 @@ async def search_face(file: UploadFile = File(...)):
     query_embedding = normalize(np.array(embeddings[0]))
 
     conn = get_db_connection()
+
+    if not conn:
+        raise HTTPException(status_code=500, detail="DB connection error")
+    
     cursor = conn.cursor()
-    cursor.execute("SELECT id, face_data, embedded_data FROM faces")
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    try:
+        cursor.execute("SELECT id, face_data, embedded_data FROM faces")
+        rows = cursor.fetchall()
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to fetch faces")
+    finally:
+        cursor.close()
+        conn.close()
 
     matches = []
     for face_id, image_data, emb_json in rows:
