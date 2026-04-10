@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import jwt
 import os
 from dotenv import load_dotenv
@@ -13,11 +13,11 @@ router = APIRouter()
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -29,10 +29,14 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(status_code=500, detail="Database connection error")
     
     cursor = conn.cursor(dictionary=True, buffered=True)
-    cursor.execute("SELECT * FROM admin WHERE username=%s", (form_data.username,))
-    admin = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    try:
+        cursor.execute("SELECT * FROM admin WHERE username=%s", (form_data.username,))
+        admin = cursor.fetchone()
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to fetch admin")
+    finally:
+        cursor.close()
+        conn.close()
 
     if not admin or not verify_password(form_data.password, admin["password"]):
         raise HTTPException(status_code=401, detail="Invalid username or password")

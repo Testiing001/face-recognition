@@ -79,12 +79,16 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         if (err.response?.status === 401) {
             localStorage.removeItem("token");
             navigate("/adminlogin");
+        } else if (err.response?.status === 500) {
+            setError("Server error, please try again");
         } else {
             setError("Something went wrong");
         }
     };
 
     const fetchPhotos = async () => {
+        if(view === "all")    return;
+
         setError("");
         setIsLoading(true);
         try {
@@ -98,8 +102,11 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const fetchFaceGroups = async () => {
+        if(view === "faces")    return;
+        
+        setError("");
         try {
-            const res = await axios.get(`${BACKEND_URL}/admin/face-groups/`, { headers: getAuthHeaders() });
+            const res = await axios.get(`${BACKEND_URL}/admin/facegroups/`, { headers: getAuthHeaders() });
             setFaceGroups(res.data.groups);
         } catch {
             setError("Failed to load face groups");
@@ -130,6 +137,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleDeletePhotos = async () => {
+        setError("");
         if (selected.length === 0) return;
         try {
             await axios.delete(`${BACKEND_URL}/admin/delete/`, {
@@ -146,17 +154,18 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleViewAll = () => { 
+        setView("all"); 
         setDeleteMode(false); 
         setError(""); 
         fetchPhotos(); 
-        setView("all"); setActiveAction("view"); 
+        setActiveAction("view"); 
     };
 
     const handleFaceGroups = () => { 
+        setView("faces"); 
         setDeleteMode(false); 
         setError(""); 
         fetchFaceGroups(); 
-        setView("faces"); 
         setActiveAction("faces"); 
     };
 
@@ -166,17 +175,17 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleDelete = () => { 
+        setView("all"); 
         setSelected([]); 
         setDeleteMode(true); 
         setError(""); 
-        setView("all"); 
         setActiveAction("delete"); 
     };
 
     const handleCancel = () => { 
+        setView("all"); 
         setSelected([]); 
         setDeleteMode(false); 
-        setView("all"); 
         setActiveAction("view"); 
     };
 

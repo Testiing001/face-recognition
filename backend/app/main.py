@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.middleware.middleware import add_middlewares
-from app.api.routes import auth, search, admin
+from app.api import auth, search, admin
 
 app = FastAPI()
 

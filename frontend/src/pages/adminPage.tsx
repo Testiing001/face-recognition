@@ -42,7 +42,7 @@ const AdminPageInner = () => {
 
                 <div className="mt-auto">
                     <hr className="border-gray-700 mb-4" />
-                    <button onClick={handleLogout} className="w-full flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-red-500 cursor-pointer">
+                    <button onClick={handleLogout} className="w-full flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-gray-700 cursor-pointer">
                         <LogOut size={16} /> Logout
                     </button>
                 </div>
@@ -57,7 +57,7 @@ const AdminPageInner = () => {
 
                 {(isLoading || isUploading) && (
                     <div className="flex items-center justify-center h-[80vh]">
-                        <p className="text-gray-500 text-lg">
+                        <p className="text-gray-500 text-lg font-semibold">
                             {isUploading ? "Uploading photos..." : "Loading photos..."}
                         </p>
                     </div>
