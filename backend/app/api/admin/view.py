@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.db.connection import get_db_connection
 
 router = APIRouter()
@@ -12,13 +12,19 @@ def view_faces():
     
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT id, face_data FROM faces")
+        cursor.execute("SELECT i.id, i.image_data FROM images i")
         rows = cursor.fetchall()
     except Exception:
-        raise HTTPException(status_code=500, detail="Failed to fetch faces")
+        raise HTTPException(status_code=500, detail="Failed to fetch photos")
     finally:
         cursor.close()
         conn.close()
 
-    faces = [{"id": r[0], "image": r[1].decode() if isinstance(r[1], bytes) else r[1]} for r in rows]
-    return {"total_faces": len(faces), "faces": faces}
+    faces = [
+        {"id": r[0], "image": r[1]}
+        for r in rows
+    ]
+    return {
+        "total_faces": len(faces), 
+        "faces": faces
+    }

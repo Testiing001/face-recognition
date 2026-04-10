@@ -10,6 +10,18 @@ export interface PhotoItem {
     image: string;
 }
 
+export interface FaceGroup {
+    group_id: number;
+    thumbnail: string;
+    total_photos: number;
+}
+
+export interface GroupDetail {
+    group_id: number;
+    total_photos: number;
+    images: PhotoItem[];
+}
+
 export type Action = "view" | "faces" | "upload" | "delete";
 export type View = "all" | "group";
 
@@ -20,7 +32,7 @@ const getAuthHeaders = () => ({
 interface AdminContextValue {
     username: string;
     photos: PhotoItem[];
-    faceGroups: any[];
+    faceGroups: FaceGroup[];
     view: View;
     activeAction: Action;
     deleteMode: boolean;
@@ -28,8 +40,12 @@ interface AdminContextValue {
     error: string;
     isLoading: boolean;
     isUploading: boolean;
+    isGroupLoading: boolean;
+    selectedGroup: GroupDetail | null;
     isAllSelected: boolean;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
+    handleGroupClick: (group_id: number) => void;
+    handleBackToGroups: () => void;
     handleViewAll: () => void;
     handleFaceGroups: () => void;
     handleUpload: () => void;
@@ -50,7 +66,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [username, setUsername] = useState("");
     const [photos, setPhotos] = useState<PhotoItem[]>([]);
-    const [faceGroups, setFaceGroups] = useState<any[]>([]);
+    const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([]);
     const [view, setView] = useState<View>("all");
     const [activeAction, setActiveAction] = useState<Action>("view");
     const [deleteMode, setDeleteMode] = useState(false);
@@ -58,6 +74,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [isGroupLoading, setIsGroupLoading] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState<GroupDetail | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -101,7 +119,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const fetchFaceGroups = async () => {
-        if(view === "group")    return;
         setError("");
         setDeleteMode(false);
         try {
@@ -136,7 +153,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleDeletePhotos = async () => {
-        setError("");
         setView("all");
         if (selected.length === 0) return;
         try {
@@ -153,32 +169,53 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const handleGroupClick = async (group_id: number) => {
+        setError("");
+        setIsGroupLoading(true);
+        try {
+            const res = await axios.get(`${BACKEND_URL}/admin/facegroups/${group_id}`, { headers: getAuthHeaders() });
+            setSelectedGroup(res.data);
+        } catch (err: any) {
+            handleAuthError(err);
+        } finally {
+            setIsGroupLoading(false);
+        }
+    };
+
+    const handleBackToGroups = () => {
+        setSelectedGroup(null);
+        setError("");
+    };
+
     const handleViewAll = () => {
         setDeleteMode(false);
-        if(view === "all")      return; 
         setError("");
+        if(view === "all")      return; 
         setView("all"); 
-        fetchPhotos(); 
+        fetchPhotos();
         setActiveAction("view"); 
     };
 
     const handleFaceGroups = () => { 
+        setDeleteMode(false);
+        setError("");
+        setSelectedGroup(null);
+        if(activeAction === "faces")    return;
         setView("group"); 
-        setDeleteMode(false); 
-        setError(""); 
         fetchFaceGroups(); 
         setActiveAction("faces"); 
     };
 
-    const handleUpload = () => { 
-        fileInputRef.current?.click(); 
+    const handleUpload = () => {
+        fileInputRef.current?.click();  
         setDeleteMode(false); 
     };
 
     const handleDelete = () => { 
-        setView("all"); 
-        setSelected([]); 
         setDeleteMode(true); 
+        if(activeAction === "delete")     return;
+        setView("all");
+        setSelected([]); 
         setError(""); 
         setActiveAction("delete"); 
     };
@@ -213,8 +250,9 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         <AdminContext.Provider value={{
             username, photos, faceGroups, view, activeAction,
             deleteMode, selected, error, isLoading, isUploading,
-            isAllSelected, fileInputRef,
-            handleViewAll, handleFaceGroups, handleUpload, handleDelete,
+            isAllSelected, fileInputRef,selectedGroup, isGroupLoading, 
+            handleGroupClick, handleBackToGroups, handleViewAll, 
+            handleFaceGroups, handleUpload, handleDelete,
             handleCancel, handleUploadPhotos, handleDeletePhotos,
             handleLogout, toggleSelect, handleSelectAllChange,
         }}>

@@ -15,15 +15,17 @@ def delete_faces(ids: List[int]):
     
     cursor = conn.cursor()
     try:
-        format_ids = ",".join(["%s"] * len(ids))
-        cursor.execute(f"DELETE FROM faces WHERE id IN ({format_ids})")
-        conn.commit()
+        placeholders = ",".join(["%s"] * len(ids))
+        cursor.execute(f"DELETE FROM images WHERE id IN ({placeholders})", ids)
         deleted_count = cursor.rowcount
+
+        cursor.execute(f"DELETE FROM groups WHERE id NOT IN ( SELECT DISTINCT group_id FROM faces WHERE group_id IS NOT NULL)")
+        conn.commit()
     except Exception:
         conn.rollback()
-        raise HTTPException(status_code=500, detail="Failed to delete faces")
+        raise HTTPException(status_code=500, detail="Failed to delete photos")
     finally:
         cursor.close()
         conn.close()
 
-    return {"deleted": deleted_count, "message": f"{deleted_count} face(s) deleted successfully"}
+    return {"deleted": deleted_count, "message": f"{deleted_count} photo(s) deleted successfully"}

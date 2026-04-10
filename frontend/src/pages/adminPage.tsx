@@ -3,11 +3,12 @@ import { AdminProvider, useAdmin } from "../context/AdminContext";
 import { ViewAll } from "../components/admin/ViewAll";
 import { FaceGroups } from "../components/admin/FaceGroups";
 import { DeletePhotos } from "../components/admin/DeletePhotos";
+import { GroupDetail } from "../components/admin/GroupDetail";
 
 const AdminPageInner = () => {
     const {
-        username, view, activeAction, deleteMode,
-        error, isLoading, isUploading, fileInputRef,
+        username, view, activeAction, deleteMode, error, 
+        isLoading, isUploading, fileInputRef, selectedGroup,
         handleViewAll, handleFaceGroups, handleUpload,
         handleDelete, handleUploadPhotos, handleLogout,
     } = useAdmin();
@@ -67,7 +68,9 @@ const AdminPageInner = () => {
 
                 {view === "all" && !isLoading && !isUploading && <ViewAll />}
                 
-                {view === "group" && <FaceGroups />}
+                {view === "group" && !isLoading && (
+                    selectedGroup ? <GroupDetail /> : <FaceGroups />
+                )}
             </div>
         </div>
     );

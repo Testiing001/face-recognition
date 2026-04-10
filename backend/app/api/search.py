@@ -1,9 +1,9 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
 import json
 import os
 import numpy as np
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from app.db.connection import get_db_connection
-from app.utils.face import normalize, cosine_similarity, decode_image_to_file, get_embeddings
+from app.utils.face import cosine_similarity, decode_image_to_file, get_embeddings, normalize
 
 router = APIRouter()
 
@@ -17,7 +17,7 @@ async def search_face(file: UploadFile = File(...)):
     except Exception:
         raise HTTPException(status_code=400, detail="No face detected. Please upload a clear image.")
     finally:
-        if os.path.exists(tmp_path):  # ← safe single delete
+        if os.path.exists(tmp_path):
             os.unlink(tmp_path)
 
     if len(embeddings) != 1:
@@ -29,13 +29,16 @@ async def search_face(file: UploadFile = File(...)):
     query_embedding = normalize(np.array(embeddings[0]))
 
     conn = get_db_connection()
-
     if not conn:
         raise HTTPException(status_code=500, detail="DB connection error")
-    
+
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT id, face_data, embedded_data FROM faces")
+        cursor.execute("""
+            SELECT f.id, i.image_data, f.embedded_data
+            FROM faces f
+            JOIN images i ON f.image_id = i.id
+        """)
         rows = cursor.fetchall()
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to fetch faces")
@@ -49,7 +52,10 @@ async def search_face(file: UploadFile = File(...)):
         score = round(float(cosine_similarity(query_embedding, stored_vec)), 2)
 
         if score > 0.5:
-            matches.append({"face_id": face_id, "image": image_data, "score": score})
+            matches.append({
+                "face_id": face_id, 
+                "image": image_data, 
+            })
 
     matches.sort(key=lambda x: -x["score"])
 
