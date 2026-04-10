@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-interface ImageItem {
+interface PhotoItem {
     id: number;
     image: string;
 }
@@ -15,15 +15,17 @@ const getAuthHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
+type Action = "view" | "faces" | "upload" | "delete";
+
 export const AdminPage = () => {
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [username, setUsername] = useState("");
-    const [images, setImages] = useState<ImageItem[]>([]);
+    const [photos, setPhotos] = useState<PhotoItem[]>([]);
     const [faceGroups, setFaceGroups] = useState<any[]>([]);
     const [view, setView] = useState<"all" | "faces">("all");
-    const [activeAction, setActiveAction] = useState<"view" | "faces" | "upload" | "delete">("view");
+    const [activeAction, setActiveAction] = useState<Action>("view");
     const [deleteMode, setDeleteMode] = useState(false);
     const [selected, setSelected] = useState<number[]>([]);
     const [error, setError] = useState("");
@@ -44,17 +46,17 @@ export const AdminPage = () => {
     }, []);
 
     useEffect(() => {
-        fetchImages();
+        fetchPhotos();
     }, []);
 
-    const fetchImages = async () => {
+    const fetchPhotos = async () => {
         setError("");
         setIsLoading(true);
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/view/`, {
                 headers: getAuthHeaders(),
             });
-            setImages(res.data.faces);
+            setPhotos(res.data.faces);
         } catch (err: any) {
             handleAuthError(err);
         } finally {
@@ -82,9 +84,9 @@ export const AdminPage = () => {
         }
     };
 
-    const handleUploadImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUploadPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (!files || files.length === 0) return;
+        if (!files) return;
 
         setError("");
         setIsUploading(true);
@@ -103,7 +105,7 @@ export const AdminPage = () => {
                     setUploadProgress({ overall: percentCompleted });
                 },
             });
-            await fetchImages();
+            await fetchPhotos();
             setView("all");
             setActiveAction("view");
         } catch (err: any) {
@@ -115,7 +117,7 @@ export const AdminPage = () => {
         }
     };
 
-    const handleDelete = async () => {
+    const handleDeletePhotos = async () => {
         if (selected.length === 0) return;
         if (!confirm(`Are you sure you want to delete ${selected.length} photo(s)?`)) return;
 
@@ -124,7 +126,7 @@ export const AdminPage = () => {
                 headers: getAuthHeaders(),
                 data: selected,
             });
-            setImages((prev) => prev.filter((img) => !selected.includes(img.id)));
+            setPhotos((prev) => prev.filter((img) => !selected.includes(img.id)));
             setSelected([]);
             setDeleteMode(false);
             setActiveAction("view");
@@ -132,6 +134,35 @@ export const AdminPage = () => {
             handleAuthError(err);
         }
     };
+
+    const handleViewAll = () => { 
+        setDeleteMode(false); 
+        setError(""); 
+        fetchPhotos(); 
+        setView("all"); 
+        setActiveAction("view"); 
+    }
+
+    const handleFaceGroups = () => { 
+        setDeleteMode(false); 
+        setError(""); 
+        fetchFaceGroups(); 
+        setView("faces"); 
+        setActiveAction("faces"); 
+    }
+
+    const handleUpload = () => {
+        fileInputRef.current?.click(); 
+        setDeleteMode(false);
+    }
+
+    const handleDelete = () => { 
+        setSelected([]); 
+        setDeleteMode(true); 
+        setError("");
+        setView("all"); 
+        setActiveAction("view"); 
+    }
 
     const handleCancel = () => {
         setSelected([]);
@@ -146,9 +177,10 @@ export const AdminPage = () => {
         );
     };
 
-    const isAllSelected = images.length > 0 && selected.length === images.length;
+    const isAllSelected = photos.length > 0 && selected.length === photos.length;
+
     const handleSelectAllChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSelected(e.target.checked ? images.map((img) => img.id) : []);
+        setSelected(e.target.checked ? photos.map((photo) => photo.id) : []);
     };
 
     const handleLogout = () => {
@@ -166,33 +198,19 @@ export const AdminPage = () => {
                     </div>
                     <hr className="border-gray-700 mb-4" />
                     <div className="flex flex-col gap-2">
-                        <button
-                            onClick={() => { setView("all"); setError(""); setActiveAction("view"); fetchImages(); setDeleteMode(false); }}
-                            className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "view" ? "bg-gray-800" : ""}`}
-                        >
+                        <button onClick={handleViewAll} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "view" ? "bg-gray-800" : ""}`}>
                             <ImageIcon size={16} /> View All Photos
                         </button>
-                        <button
-                            onClick={() => { setView("faces"); fetchFaceGroups(); setError(""); setActiveAction("faces"); setDeleteMode(false); }}
-                            className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "faces" ? "bg-gray-800" : ""}`}
-                        >
-                            <Users size={16} /> Face Categories
+                        <button onClick={handleFaceGroups} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "faces" ? "bg-gray-800" : ""}`}>
+                            <Users size={16} /> Face Groups
                         </button>
-                        <button
-                            onClick={() => {fileInputRef.current?.click(); setDeleteMode(false);}}
-                            className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "upload" ? "bg-gray-800" : ""}`}
-                        >
+                        <button onClick={handleUpload} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "upload" ? "bg-gray-800" : ""}`}>
                             <UploadCloud size={16} /> Upload Photos
                         </button>
-                        <button
-                            onClick={() => { setDeleteMode(true); setSelected([]); setError(""); setActiveAction("delete"); setView("all"); }}
-                            className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer text-white ${activeAction === "delete" ? "bg-gray-800" : ""}`}
-                        >
+                        <button onClick={handleDelete} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer text-white ${activeAction === "delete" ? "bg-gray-800" : ""}`}>
                             <Trash2 size={16} /> Delete Photos
                         </button>
-
-                        <input ref={fileInputRef} type="file" multiple accept="image/*"
-                            className="hidden" onChange={handleUploadImages} />
+                        <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleUploadPhotos} />
                     </div>
                 </div>
 
@@ -213,21 +231,14 @@ export const AdminPage = () => {
                     <div className="w-full mx-3">
                         <p className="text-red-600/90 font-semibold">Select images to delete</p>
                         <div className="flex justify-between items-center gap-3">
-                            {images.length > 0 && (
+                            {photos.length > 0 && (
                                 <label className="flex items-center gap-2 font-semibold text-gray-700 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={isAllSelected}
-                                        onChange={handleSelectAllChange}
-                                        className="w-4 h-4 accent-blue-500 cursor-pointer"
-                                    />
+                                    <input type="checkbox" checked={isAllSelected} onChange={handleSelectAllChange} className="w-4 h-4 accent-blue-500 cursor-pointer"/>
                                     Select All
                                 </label>
                             )}
                             <div className="flex gap-2">
-                                <button
-                                    onClick={handleDelete}
-                                    disabled={selected.length === 0}
+                                <button onClick={handleDeletePhotos} disabled={selected.length === 0}
                                     className={`px-3 py-2 flex items-center gap-1 rounded-lg text-white ${
                                         selected.length
                                             ? "bg-red-600 hover:bg-red-500 cursor-pointer"
@@ -254,23 +265,17 @@ export const AdminPage = () => {
                 )}
 
                 {view === "all" && !isLoading && !isUploading && (
-                    images.length === 0 ? (
+                    photos.length === 0 ? (
                         <div className="flex items-center justify-center h-screen">
                             <p className="text-gray-400 text-lg font-semibold">No photos in database</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {images.map((img) => (
-                                <div
-                                    key={img.id}
-                                    className="relative rounded-xl overflow-hidden cursor-pointer hover:scale-105 hover:shadow-lg transition"
-                                    onClick={() => deleteMode && toggleSelect(img.id)}
-                                >
-                                    <img src={img.image} className="w-full h-full object-cover aspect-square" />
+                            {photos.map((photo) => (
+                                <div key={photo.id} className="relative rounded-xl overflow-hidden cursor-pointer hover:scale-105 hover:shadow-lg transition" onClick={() => deleteMode && toggleSelect(photo.id)}>
+                                    <img src={photo.image} className="w-full h-full object-cover aspect-square" />
                                     {deleteMode && ( 
-                                        <input type="checkbox" className="w-4 h-4 cursor-pointer absolute top-2 right-2 accent-blue-500" 
-                                            checked={selected.includes(img.id)} 
-                                        /> 
+                                        <input type="checkbox" className="w-4 h-4 cursor-pointer absolute top-2 right-2 accent-blue-500"  checked={selected.includes(photo.id)} /> 
                                     )}
                                 </div>
                             ))}
