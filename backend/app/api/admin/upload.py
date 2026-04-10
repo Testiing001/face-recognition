@@ -17,14 +17,11 @@ def find_matching_group(cursor, new_embedding: np.ndarray) -> int | None:
     best_group_id = None
 
     for group_id, emb_json in rows:
-        try:
-            stored_vec = normalize(np.array(json.loads(emb_json)))
-            score = cosine_similarity(new_embedding, stored_vec)
-            if score > best_score:
-                best_score = score
-                best_group_id = group_id
-        except (json.JSONDecodeError, TypeError):
-            continue
+        stored_vec = normalize(np.array(json.loads(emb_json)))
+        score = cosine_similarity(new_embedding, stored_vec)
+        if score > best_score:
+            best_score = score
+            best_group_id = group_id
 
     return best_group_id if best_score >= 0.5 else None
 
@@ -57,9 +54,9 @@ async def upload_photos(files: List[UploadFile] = File(...)):
             if not embeddings:
                 continue
 
-            image_b64 = "data:image/jpeg;base64," + base64.b64encode(data).decode("utf-8")
+            image = "data:image/jpeg;base64," + base64.b64encode(data).decode("utf-8")
             try:
-                cursor.execute("INSERT INTO images (image_data) VALUES (%s)",(image_b64,))
+                cursor.execute("INSERT INTO images (image_data) VALUES (%s)",(image))
                 image_id = cursor.lastrowid
             except Exception:
                 conn.rollback()
