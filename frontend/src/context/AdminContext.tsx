@@ -1,13 +1,17 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export interface PhotoItem {
     id: number;
     image: string;
+}
+
+interface AdminProfile {
+    fullname: string;
+    email: string;
 }
 
 export interface FaceGroup {
@@ -30,7 +34,7 @@ const getAuthHeaders = () => ({
 });
 
 interface AdminContextValue {
-    username: string;
+    adminProfile: AdminProfile | null;
     photos: PhotoItem[];
     faceGroups: FaceGroup[];
     view: View;
@@ -64,7 +68,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [username, setUsername] = useState("");
+    const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
     const [photos, setPhotos] = useState<PhotoItem[]>([]);
     const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([]);
     const [view, setView] = useState<View>("all");
@@ -77,19 +81,20 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [isGroupLoading, setIsGroupLoading] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<GroupDetail | null>(null);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            try {
-                const decoded: any = jwtDecode(token);
-                setUsername(decoded.sub);
-            } catch {
-                setUsername("Admin");
-            }
+    const fetchAdminProfile = async () => {
+        try {
+            const res = await axios.get(`${BACKEND_URL}/admin/profile`, {
+                headers: getAuthHeaders()
+            });
+            setAdminProfile(res.data);
+        } 
+        catch (err: any) {
+            handleAuthError(err);
         }
-    }, []);
+    };
 
     useEffect(() => {
+        fetchAdminProfile();
         fetchPhotos();
     }, []);
 
@@ -248,7 +253,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <AdminContext.Provider value={{
-            username, photos, faceGroups, view, activeAction,
+            adminProfile, photos, faceGroups, view, activeAction,
             deleteMode, selected, error, isLoading, isUploading,
             isAllSelected, fileInputRef,selectedGroup, isGroupLoading, 
             handleGroupClick, handleBackToGroups, handleViewAll, 
