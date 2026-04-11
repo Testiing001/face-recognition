@@ -3,7 +3,7 @@ import { AdminProvider, useAdmin } from "../context/AdminContext";
 import { ViewAll } from "../components/admin/ViewAll";
 import { FaceGroups } from "../components/admin/FaceGroups";
 import { DeletePhotos } from "../components/admin/DeletePhotos";
-import { GroupDetail } from "../components/admin/GroupDetail";
+import { GroupPhotos } from "../components/admin/GroupPhotos";
 
 const AdminPageInner = () => {
     const {
@@ -68,7 +68,7 @@ const AdminPageInner = () => {
                 {view === "all" && !isLoading && !isUploading && <ViewAll />}
                 
                 {view === "group" && !isLoading && (
-                    selectedGroup ? <GroupDetail /> : <FaceGroups />
+                    selectedGroup ? <GroupPhotos /> : <FaceGroups />
                 )}
             </div>
         </div>

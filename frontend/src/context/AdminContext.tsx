@@ -22,7 +22,7 @@ export interface FaceGroup {
     total_photos: number;
 }
 
-export interface GroupDetail {
+export interface GroupPhotos {
     group_id: number;
     total_photos: number;
     images: PhotoItem[];
@@ -47,10 +47,10 @@ interface AdminContextValue {
     isLoading: boolean;
     isUploading: boolean;
     isGroupLoading: boolean;
-    selectedGroup: GroupDetail | null;
+    selectedGroup: GroupPhotos | null;
     isAllSelected: boolean;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
-    handleGroupDetail: (group_id: number) => void;
+    handleGroupPhotos: (group_id: number) => void;
     handleBackToGroups: () => void;
     handleViewAll: () => void;
     handleFaceGroups: () => void;
@@ -81,7 +81,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isGroupLoading, setIsGroupLoading] = useState(false);
-    const [selectedGroup, setSelectedGroup] = useState<GroupDetail | null>(null);
+    const [selectedGroup, setSelectedGroup] = useState<GroupPhotos | null>(null);
 
     useEffect(() => {
         fetchAdminProfile();
@@ -181,7 +181,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const handleGroupDetail = async (group_id: number) => {
+    const handleGroupPhotos = async (group_id: number) => {
         setError("");
         setIsLoading(true);
         try {
@@ -264,7 +264,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             adminProfile, photos, faceGroups, view, activeAction,
             deleteMode, selected, error, isLoading, isUploading,
             isAllSelected, fileInputRef,selectedGroup, isGroupLoading, 
-            handleGroupDetail, handleBackToGroups, handleViewAll, 
+            handleGroupPhotos, handleBackToGroups, handleViewAll, 
             handleFaceGroups, handleUpload, handleDelete,
             handleCancel, handleUploadPhotos, handleDeletePhotos,
             handleLogout, toggleSelect, handleSelectAllChange,

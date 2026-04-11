@@ -1,7 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useAdmin } from "../../context/AdminContext";
 
-export const GroupDetail = () => {
+export const GroupPhotos = () => {
     const { selectedGroup, handleBackToGroups } = useAdmin();
 
     if (!selectedGroup)     return null;
