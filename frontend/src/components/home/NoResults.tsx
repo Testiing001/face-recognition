@@ -18,7 +18,7 @@ export const NoResults = () => {
                     <p className="text-gray-300">No Results Found</p>
                 </div>
                 <p className="text-center text-gray-700 font-semibold mt-3">
-                    Try uploading a clear image or scan your face again.
+                    Try uploading a clear image or scan your face again
                 </p>
             </div>
         </div>

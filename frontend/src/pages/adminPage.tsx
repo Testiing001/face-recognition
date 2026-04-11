@@ -7,7 +7,7 @@ import { GroupDetail } from "../components/admin/GroupDetail";
 
 const AdminPageInner = () => {
     const {
-        username, view, activeAction, deleteMode, error, photos, 
+        adminProfile, view, activeAction, deleteMode, error, photos, 
         isLoading, isUploading, fileInputRef, selectedGroup,
         handleViewAll, handleFaceGroups, handleUpload,
         handleDelete, handleUploadPhotos, handleLogout,
@@ -18,8 +18,8 @@ const AdminPageInner = () => {
             <div className="w-64 bg-gray-900 text-white p-4 flex flex-col justify-between flex-shrink-0">
                 <div>
                     <div className="mb-6 mx-3">
-                        <p className="text-xl font-semibold">{username}</p>
-                        <p className="text-sm text-gray-400">Admin</p>
+                        <p className="text-xl font-semibold">{adminProfile?.fullname}</p>
+                        <p className="text-sm text-gray-400">{adminProfile?.email}</p>
                     </div>
 
                     <hr className="border-gray-700 mb-4" />

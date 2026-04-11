@@ -22,7 +22,7 @@ export const FaceGroups = () => {
                 </div>
             ) : (
                 <div className="flex items-center justify-center h-[80vh]">
-                    <p className="text-gray-400 text-lg font-semibold">No Faces Groups to show</p>
+                    <p className="text-gray-400 text-lg font-semibold">No Face Groups to show</p>
                 </div>
             )}
         </>
