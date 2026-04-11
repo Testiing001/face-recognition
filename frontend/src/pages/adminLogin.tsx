@@ -40,7 +40,7 @@ export const AdminLogin = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-400">
+        <div className="flex items-center justify-center min-h-screen bg-gray-300">
             <div className="w-sm bg-white px-10 py-8 rounded-2xl shadow-2xl">
                 <h1 className="text-center text-3xl font-bold mb-8">Admin Login</h1>
                 <form onSubmit={handleSubmit} className="space-y-6">

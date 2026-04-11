@@ -54,7 +54,8 @@ async def search_face(file: UploadFile = File(...)):
         if score > 0.5:
             matches.append({
                 "face_id": face_id, 
-                "image": image_data, 
+                "image": image_data,
+                "score": score,
             })
 
     matches.sort(key=lambda x: -x["score"])

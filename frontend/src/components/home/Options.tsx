@@ -5,8 +5,8 @@ export const Options = () => {
     const { handleCamera, fileInputRef } = useFace();
 
     return (
-        <>
-            <h1 className="text-4xl text-center font-semibold text-black/70 my-5">
+        <div className="bg-gray-300 h-screen">
+            <h1 className="text-4xl text-center font-semibold text-black/70 py-5">
                 Welcome to Face Recognition System
             </h1>
             <div className="w-lg flex mx-auto p-6">
@@ -32,6 +32,6 @@ export const Options = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };

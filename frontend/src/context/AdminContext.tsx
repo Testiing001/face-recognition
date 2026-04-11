@@ -9,7 +9,8 @@ export interface PhotoItem {
     image: string;
 }
 
-interface AdminProfile {
+export interface AdminProfile {
+    username: string;
     fullname: string;
     email: string;
 }
@@ -81,18 +82,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [isGroupLoading, setIsGroupLoading] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<GroupDetail | null>(null);
 
-    const fetchAdminProfile = async () => {
-        try {
-            const res = await axios.get(`${BACKEND_URL}/admin/profile`, {
-                headers: getAuthHeaders()
-            });
-            setAdminProfile(res.data);
-        } 
-        catch (err: any) {
-            handleAuthError(err);
-        }
-    };
-
     useEffect(() => {
         fetchAdminProfile();
         fetchPhotos();
@@ -123,6 +112,22 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const fetchAdminProfile = async () => {
+        console.log("fetchAdminProfile called");
+        try {
+            const res = await axios.get(`${BACKEND_URL}/admin/profile/`, {
+                headers: getAuthHeaders()
+            });
+            console.log("PROFILE RESPONSE:", res.data);
+            setAdminProfile(res.data);
+        } 
+        catch (err: any) {
+            console.log("ERROR in fetchAdminProfile:", err);
+            handleAuthError(err);
+        }
+    };
+    
+
     const fetchFaceGroups = async () => {
         setError("");
         setDeleteMode(false);
@@ -138,8 +143,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         setError("");
         const files = e.target.files;
         if (!files) return;
-        setIsUploading(true);
         setActiveAction("upload");
+        setIsUploading(true);
         const formData = new FormData();
         Array.from(files).forEach((file) => formData.append("files", file));
         try {
@@ -195,6 +200,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const handleViewAll = () => {
         setDeleteMode(false);
         setError("");
+        setActiveAction("view");
         if(view === "all" && photos.length > 0)      return; 
         setView("all"); 
         fetchPhotos();
@@ -213,7 +219,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     const handleUpload = () => {
         fileInputRef.current?.click();  
-        setDeleteMode(false); 
+        setDeleteMode(false);
     };
 
     const handleDelete = () => { 

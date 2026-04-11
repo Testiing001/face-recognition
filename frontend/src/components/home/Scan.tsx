@@ -11,8 +11,8 @@ export const Scan = () => {
     } = useFace();
 
     return (
-        <div className="w-lg h-screen mx-auto flex justify-center items-center">
-            <div className="w-full bg-white rounded-2xl px-8 py-3 shadow-lg shadow-gray-700 relative">
+        <div className="w-full bg-gray-300 h-screen mx-auto flex justify-center items-center">
+            <div className="w-lg bg-white rounded-2xl px-8 py-3 shadow-lg shadow-gray-700 relative">
                 <div className="mx-auto text-center text-2xl text-gray-700 font-semibold mb-3">
                     Search a Face
                 </div>
