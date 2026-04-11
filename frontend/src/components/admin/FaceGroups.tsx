@@ -31,10 +31,10 @@ export const FaceGroups = () => {
                                                     src={group.thumbnail}
                                                     className="absolute max-w-none"
                                                     style={{
-                                                    left: `-${x1 * scale - 50}px`,
-                                                    top: `-${y1 * scale - 30}px`,
-                                                    transform: `scale(${scale})`,
-                                                    transformOrigin: "top left",
+                                                        left: `-${x1 * scale - 50}px`,
+                                                        top: `-${y1 * scale - 30}px`,
+                                                        transform: `scale(${scale})`,
+                                                        transformOrigin: "top left",
                                                     }}
                                                 />`
                                             </div>
@@ -47,7 +47,7 @@ export const FaceGroups = () => {
                             </div>
                         </>
                     ) : (
-                        <div className="flex items-center justify-center h-[80vh]">
+                        <div className="flex items-center justify-center min-h-[80vh]">
                             <p className="text-gray-400 text-lg font-semibold">No Face Groups to show</p>
                         </div>
                     )}
