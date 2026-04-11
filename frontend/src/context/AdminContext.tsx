@@ -115,20 +115,16 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const fetchAdminProfile = async () => {
-        console.log("fetchAdminProfile called");
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/profile/`, {
                 headers: getAuthHeaders()
             });
-            console.log("PROFILE RESPONSE:", res.data);
             setAdminProfile(res.data);
         } 
         catch (err: any) {
-            console.log("ERROR in fetchAdminProfile:", err);
             handleAuthError(err);
         }
-    };
-    
+    };    
 
     const fetchFaceGroups = async () => {
         setError("");
@@ -138,9 +134,11 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/facegroups/`, { headers: getAuthHeaders() });
             setFaceGroups(res.data.groups);
-            setIsGroupLoading(false);
         } catch {
             setError("Failed to load face groups");
+        }
+        finally {
+            setIsGroupLoading(false);
         }
     };
 
@@ -158,8 +156,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
                 headers: { ...getAuthHeaders(), "Content-Type": "multipart/form-data" },
             });
             await fetchPhotos();
-            setView("all");
-            setActiveAction("view");
         } catch (err: any) {
             handleAuthError(err);
         } finally {
@@ -217,15 +213,14 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         setDeleteMode(false);
         setError("");
         setSelectedGroup(null);
+        if(activeAction === "faces")    return;
         setActiveAction("faces");
         setView("group");
-        if(activeAction === "faces" || photos.length === 0)    return;
-        fetchFaceGroups(); 
+        fetchFaceGroups();
     };
 
     const handleUpload = () => {
-        fileInputRef.current?.click();  
-        setDeleteMode(false);
+        fileInputRef.current?.click();
     };
 
     const handleDelete = () => { 

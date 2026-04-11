@@ -5,8 +5,8 @@ export const Gallery = () => {
     const { matches, handleReset, handleFullImage } = useFace();
 
     return (
-        <div className="h-screen bg-gray-300 py-5 px-8">
-            <div className="min-h-full px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-500">
+        <div className="min-h-screen bg-gray-300 px-8 py-6">
+            <div className="min-h-[90vh] px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-500">
                 <div className="flex justify-between items-center">
                     <p className="text-4xl text-gray-700 text-semibold">Your Photos</p>
                     <button
@@ -16,7 +16,7 @@ export const Gallery = () => {
                         <RotateCcw size={18} /> Search Again
                     </button>
                 </div>
-                <div className="my-4 grid grid-cols-4 gap-4">
+                <div className="my-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {matches.map((v, i) => (
                         <div key={v.id} className="mb-2">
                             <div className="relative group transition-transform duration-300 hover:scale-103">
