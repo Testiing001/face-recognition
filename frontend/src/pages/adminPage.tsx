@@ -8,7 +8,7 @@ import { GroupDetail } from "../components/admin/GroupDetail";
 const AdminPageInner = () => {
     const {
         adminProfile, view, activeAction, deleteMode, error, photos, 
-        isLoading, isUploading, fileInputRef, selectedGroup,
+        isLoading, isUploading, fileInputRef, selectedGroup, isGroupLoading,
         handleViewAll, handleFaceGroups, handleUpload,
         handleDelete, handleUploadPhotos, handleLogout,
     } = useAdmin();
@@ -55,10 +55,12 @@ const AdminPageInner = () => {
 
                 {photos.length > 0 && deleteMode && <DeletePhotos />}
 
-                {(isLoading || isUploading) && (
+                {(isLoading || isUploading || isGroupLoading) && (
                     <div className="h-screen flex justify-center items-center">
                         <p className="text-gray-500 text-lg text-center font-semibold">
-                            {isUploading ? "Uploading photos..." : "Loading photos..."}
+                            {isLoading && "Loading photos..."}
+                            {isUploading && "Uploading photos..."}
+                            {isGroupLoading && "Loading groups..."}
                         </p>
                     </div>
                 )}

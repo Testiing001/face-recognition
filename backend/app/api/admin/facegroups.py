@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, HTTPException
 from app.db.connection import get_db_connection
 
@@ -14,13 +15,14 @@ def get_face_groups():
         cursor.execute("""
             SELECT 
                 g.id,
-                i.image_data AS thumbnail,
+                i.image_data,
+                f_thumb.bbox,
                 COUNT(DISTINCT f.image_id) AS total_photos
             FROM groups g
             JOIN faces f_thumb ON g.face_id = f_thumb.id
             JOIN images i ON f_thumb.image_id = i.id
             JOIN faces f ON f.group_id = g.id
-            GROUP BY g.id, i.image_data
+            GROUP BY g.id, i.image_data, f_thumb.bbox
         """)
         rows = cursor.fetchall()
     except Exception:
@@ -33,7 +35,8 @@ def get_face_groups():
         {
             "group_id": r[0],
             "thumbnail": r[1],
-            "total_photos": r[2],
+            "bbox": json.loads(r[2]),
+            "total_photos": r[3],
         }
         for r in rows
     ]

@@ -18,6 +18,7 @@ export interface AdminProfile {
 export interface FaceGroup {
     group_id: number;
     thumbnail: string;
+    bbox: number[];
     total_photos: number;
 }
 
@@ -28,7 +29,7 @@ export interface GroupDetail {
 }
 
 export type Action = "view" | "faces" | "upload" | "delete";
-export type View = "all" | "group";
+export type View = "all" | "group" | null;
 
 const getAuthHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -38,7 +39,7 @@ interface AdminContextValue {
     adminProfile: AdminProfile | null;
     photos: PhotoItem[];
     faceGroups: FaceGroup[];
-    view: View;
+    view: View | null;
     activeAction: Action;
     deleteMode: boolean;
     selected: number[];
@@ -49,7 +50,7 @@ interface AdminContextValue {
     selectedGroup: GroupDetail | null;
     isAllSelected: boolean;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
-    handleGroupClick: (group_id: number) => void;
+    handleGroupDetail: (group_id: number) => void;
     handleBackToGroups: () => void;
     handleViewAll: () => void;
     handleFaceGroups: () => void;
@@ -101,6 +102,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchPhotos = async () => {
         setError("");
         setDeleteMode(false);
+        setIsGroupLoading(false);
         setIsLoading(true);
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/view/`, { headers: getAuthHeaders() });
@@ -130,10 +132,13 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     const fetchFaceGroups = async () => {
         setError("");
+        setIsLoading(false);
         setDeleteMode(false);
+        setIsGroupLoading(true);
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/facegroups/`, { headers: getAuthHeaders() });
             setFaceGroups(res.data.groups);
+            setIsGroupLoading(false);
         } catch {
             setError("Failed to load face groups");
         }
@@ -143,6 +148,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         setError("");
         const files = e.target.files;
         if (!files) return;
+        setView(null);
         setActiveAction("upload");
         setIsUploading(true);
         const formData = new FormData();
@@ -179,16 +185,16 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const handleGroupClick = async (group_id: number) => {
+    const handleGroupDetail = async (group_id: number) => {
         setError("");
-        setIsGroupLoading(true);
+        setIsLoading(true);
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/facegroups/${group_id}`, { headers: getAuthHeaders() });
             setSelectedGroup(res.data);
         } catch (err: any) {
             handleAuthError(err);
         } finally {
-            setIsGroupLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -223,7 +229,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleDelete = () => { 
-        setDeleteMode(true); 
+        setDeleteMode(true);
+        setIsGroupLoading(false);
         if(activeAction === "delete")     return;
         setView("all");
         setSelected([]); 
@@ -262,7 +269,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             adminProfile, photos, faceGroups, view, activeAction,
             deleteMode, selected, error, isLoading, isUploading,
             isAllSelected, fileInputRef,selectedGroup, isGroupLoading, 
-            handleGroupClick, handleBackToGroups, handleViewAll, 
+            handleGroupDetail, handleBackToGroups, handleViewAll, 
             handleFaceGroups, handleUpload, handleDelete,
             handleCancel, handleUploadPhotos, handleDeletePhotos,
             handleLogout, toggleSelect, handleSelectAllChange,

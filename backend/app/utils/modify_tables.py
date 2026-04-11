@@ -4,7 +4,7 @@ conn = get_db_connection()
 cursor = conn.cursor()
 
 queries = [
-    "TRUNCATE TABLE admin",
+    "ALTER TABLE faces ADD COLUMN bbox TEXT",
 ]
 
 try:

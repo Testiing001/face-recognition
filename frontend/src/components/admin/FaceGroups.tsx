@@ -1,28 +1,51 @@
 import { useAdmin } from "../../context/AdminContext";
-
 export const FaceGroups = () => {
-    const { photos, faceGroups, handleGroupClick } = useAdmin();
+    const { photos, faceGroups, handleGroupDetail } = useAdmin();
 
     return (
         <>
-            <h1 className="my-5 text-4xl font-bold text-gray-800">Face Groups</h1>
+            <h1 className="my-3 text-3xl font-bold text-gray-800">Face Groups</h1>
             {photos.length > 0 ? (
                 <>
-                    <p className="font-semibold text-gray-500 my-1">Select a group to view matching photos</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-6 mb-4 gap-4">
-                        {faceGroups.map((group) => (
-                            <div
-                                key={group.group_id}
-                                onClick={() => handleGroupClick(group.group_id)}
-                                className="hover:scale-105 transition cursor-pointer bg-gray-100/70 shadow-lg overflow-hidden rounded-xl shadow-gray-400"
-                            >
-                                <img src={group.thumbnail} className="object-cover aspect-square" />
-                            </div>
-                        ))}
+                    <p className="font-semibold text-gray-500">Select a group to view matching photos</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 my-4 gap-5">
+                        {faceGroups.map((group) => {
+                            const [x1, y1, x2, y2] = group.bbox;
+
+                            const faceWidth = x2 - x1;
+                            const faceHeight = y2 - y1;
+
+                            const targetSize = 80;
+                            const scale = targetSize / Math.max(faceWidth, faceHeight);
+
+                            return (
+                                <div
+                                    key={group.group_id}
+                                    onClick={() => handleGroupDetail(group.group_id)}
+                                    className="p-3 rounded-xl bg-gray-100/70 shadow-lg hover:scale-103 transition cursor-pointer flex flex-col items-center"
+                                >
+                                    <div className="w-40 h-40 rounded-full overflow-hidden relative bg-gray-200">
+                                    `    <img
+                                            src={group.thumbnail}
+                                            className="absolute max-w-none"
+                                            style={{
+                                            left: `-${x1 * scale - 50}px`,
+                                            top: `-${y1 * scale - 40}px`,
+                                            transform: `scale(${scale})`,
+                                            transformOrigin: "top left",
+                                            }}
+                                        />`
+                                    </div>
+                                    <p className="mt-3 text-sm font-medium">
+                                        {group.total_photos} Photos
+                                    </p>
+                                </div>
+                            );
+                        })}
                     </div>
                 </>
             ) : (
-                <div className="flex items-center justify-center h-[75vh]">
+                <div className="flex items-center justify-center h-[80vh]">
                     <p className="text-gray-400 text-lg font-semibold">No Face Groups to show</p>
                 </div>
             )}
