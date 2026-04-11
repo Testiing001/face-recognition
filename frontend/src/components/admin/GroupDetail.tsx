@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { useAdmin } from "../../context/AdminContext";
 
 export const GroupDetail = () => {
-    const { selectedGroup, isGroupLoading, handleBackToGroups } = useAdmin();
+    const { selectedGroup, handleBackToGroups } = useAdmin();
 
     if (!selectedGroup)     return null;
 
