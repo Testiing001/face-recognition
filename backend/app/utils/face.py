@@ -26,5 +26,12 @@ def get_embeddings(img_path: str) -> list:
         raise ValueError("Cannot read image")
 
     faces = app.get(img)
-    embeddings = [f.embedding.tolist() for f in faces] if faces else []
-    return embeddings
+    
+    results = []
+    for f in faces:
+        results.append({
+            "embedding": f.embedding.tolist(),
+            "bbox": f.bbox.astype(int).tolist()
+        })
+
+    return results

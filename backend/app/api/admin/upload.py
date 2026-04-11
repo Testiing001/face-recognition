@@ -63,7 +63,10 @@ async def upload_photos(files: List[UploadFile] = File(...)):
             conn.rollback()
             raise HTTPException(status_code=500, detail="Failed to store image")
 
-        for embedding in embeddings:
+        for face in embeddings:
+            embedding = face["embedding"]
+            bbox = face["bbox"]
+            
             normalized_emb = normalize(np.array(embedding))
             group_id = find_matching_group(cursor, normalized_emb)
 
@@ -77,8 +80,8 @@ async def upload_photos(files: List[UploadFile] = File(...)):
 
             try:
                 cursor.execute(
-                    "INSERT INTO faces (image_id, group_id, embedded_data) VALUES (%s, %s, %s)",
-                    (image_id, group_id, json.dumps(embedding))
+                    "INSERT INTO faces (image_id, group_id, embedded_data, bbox) VALUES (%s, %s, %s, %s)",
+                    (image_id, group_id, json.dumps(embedding), json.dumps(bbox))
                 )
                 face_id = cursor.lastrowid
 
