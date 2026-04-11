@@ -9,7 +9,7 @@ load_dotenv()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
+ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 def get_current_admin(token: str = Depends(oauth2_scheme)):
     try:
@@ -25,7 +25,7 @@ def get_current_admin(token: str = Depends(oauth2_scheme)):
 
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT fullname, email FROM admin WHERE username = %s",
+            "SELECT username, fullname, email FROM admin WHERE username = %s",
             (username,)
         )
         admin = cursor.fetchone()
@@ -36,8 +36,9 @@ def get_current_admin(token: str = Depends(oauth2_scheme)):
             raise HTTPException(status_code=404, detail="Admin not found")
 
         return {
-            "fullname": admin[0],
-            "email": admin[1]
+            "username" : admin[0],
+            "fullname": admin[1],
+            "email": admin[2],
         }
 
     except jwt.ExpiredSignatureError:

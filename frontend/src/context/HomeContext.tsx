@@ -3,8 +3,8 @@ import { createContext, useCallback, useContext, useRef, useState } from "react"
 import Webcam from "react-webcam";
 
 export type Status = "options" | "scan" | "result";
-export type Mode = "capture" | "preview" | null;
 export type Source = "camera" | "upload" | null;
+export type Mode = "capture" | "preview" | null;
 export type Show = "viewer" | "gallery" | null;
 
 export interface Match {

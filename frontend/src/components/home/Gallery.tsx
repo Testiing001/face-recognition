@@ -5,7 +5,7 @@ export const Gallery = () => {
     const { matches, handleReset, handleFullImage } = useFace();
 
     return (
-        <div className="h-screen py-5 px-8">
+        <div className="h-screen bg-gray-300 py-5 px-8">
             <div className="min-h-full px-10 pt-6 pb-3 bg-white rounded-xl shadow-lg shadow-gray-500">
                 <div className="flex justify-between items-center">
                     <p className="text-4xl text-gray-700 text-semibold">Your Photos</p>
