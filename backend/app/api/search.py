@@ -26,7 +26,7 @@ async def search_face(file: UploadFile = File(...)):
             detail="Multiple faces detected. Please make sure only one face is visible."
         )
 
-    query_embedding = normalize(np.array(embeddings[0]))
+    query_embedding = normalize(np.array(embeddings[0]["embedding"]))
 
     conn = get_db_connection()
     if not conn:
