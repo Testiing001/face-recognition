@@ -1,17 +1,14 @@
 import { Trash2 } from "lucide-react";
 import { useAdmin } from "../../context/AdminContext";
-import { useState} from "react";
 import { ConfirmModal } from "./ConfirmModal";
 import { DeletePhotos } from "./DeletePhotos";
 
 export const ViewAll = () => {
     const { 
         photos, activeAction, deleteMode, showConfirm, setShowConfirm, 
-        selected, toggleSelect, setSelected, 
+        selected, toggleSelect, setSelected, hoveredPhoto, setHoveredPhoto,
     } = useAdmin();
     
-    const [hoveredImage, setHoveredImage] = useState<number | null>(null);
-
     const noPhotoMessage = activeAction === "view" ? "No photos in database" : (activeAction === "delete" ? "No photos to delete" : "");
 
     return (
@@ -26,13 +23,13 @@ export const ViewAll = () => {
                                 key={photo.id}
                                 onClick={() => deleteMode && toggleSelect(photo.id)}
                                 className={`${deleteMode ? "cursor-pointer" : ""} relative`}
-                                onMouseEnter={() => setHoveredImage(photo.id)}
-                                onMouseLeave={() => setHoveredImage(null)}
+                                onMouseEnter={() => setHoveredPhoto(photo.id)}
+                                onMouseLeave={() => setHoveredPhoto(null)}
                             >
                                 <img src={photo.image} className="rounded-xl object-cover aspect-square" />
-                                {!deleteMode && hoveredImage === photo.id && (
+                                {!deleteMode && hoveredPhoto === photo.id && (
                                     <button
-                                        onClick={() => {setSelected([photo.id]); setShowConfirm(true)}}
+                                        onClick={(e) => {e.stopPropagation(); setSelected([photo.id]); setShowConfirm(true)}}
                                         className="absolute top-2 right-2 bg-red-600 text-white p-2 cursor-pointer rounded"
                                     >
                                         <Trash2 size={16} />

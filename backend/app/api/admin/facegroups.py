@@ -17,7 +17,7 @@ def get_face_groups():
                 g.id,
                 i.image_data,
                 f_thumb.bbox,
-                COUNT(DISTINCT f.image_id) AS total_photos
+                COUNT(DISTINCT f.image_id) AS count
             FROM groups g
             JOIN faces f_thumb ON g.face_id = f_thumb.id
             JOIN images i ON f_thumb.image_id = i.id
@@ -36,7 +36,7 @@ def get_face_groups():
             "group_id": r[0],
             "thumbnail": r[1],
             "bbox": json.loads(r[2]),
-            "total_photos": r[3],
+            "count": r[3],
         }
         for r in rows
     ]
@@ -77,6 +77,6 @@ def get_group_detail(group_id: int):
     ]
     return {
         "group_id": group_id, 
-        "total_photos": len(images), 
-        "images": images
+        "count": len(images), 
+        "photos": images
     }

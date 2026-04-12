@@ -3,8 +3,8 @@ import { useAdmin } from "../../context/AdminContext";
 
 export const DeletePhotos = () => {
     const {
-        photos, deleteMode, setDeleteMode, isAllSelected, 
-        handleSelectAllChange, setShowConfirm, selected, handleCancel
+        view, photos, deleteMode, setDeleteMode, isAllSelected, 
+        handleSelectAllChange, selectedGroup, setShowConfirm, selected, handleCancel
     } = useAdmin()
 
     return (
@@ -44,8 +44,13 @@ export const DeletePhotos = () => {
                             </div>
                         </div>
                     ) : (
-                        <label className="w-full flex justify-between items-center text-lg gap-2 mt-2 mb-4 font-semibold text-gray-700">
-                            <p>Photo ({photos.length})</p>
+                        <label className="w-full flex justify-between items-center text-lg gap-2 mt-2 mb-5 font-semibold text-gray-700">
+                            <p>
+                                {view === "all"
+                                    ? `${photos.length} ${photos.length > 1 ? "Photos" : "Photo"}`
+                                    : `${selectedGroup?.count} ${selectedGroup?.count ?? 0 > 1 ? "Photos" : "Photo"}`
+                                }
+                                </p>
                             <div className="flex items-center gap-2 cursor-pointer"> 
                                 <input
                                     type="checkbox"

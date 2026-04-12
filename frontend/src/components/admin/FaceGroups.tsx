@@ -39,7 +39,7 @@ export const FaceGroups = () => {
                                                 />`
                                             </div>
                                             <p className="mt-3 text-sm font-medium">
-                                                {group.total_photos} Photos
+                                                {group.count} Photos
                                             </p>
                                         </div>
                                     );
