@@ -187,6 +187,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
                 data: selected,
             });
             toast.error(count > 1 ? "Photos deleted" : "Photo deleted");
+            await fetchFaceGroups();
             setPhotos((prev) => prev.filter((img) => !selected.includes(img.id)));
             setSelectedGroup((prev) =>
                 prev ? {
@@ -284,9 +285,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             : [...prev, id]);
     }
     
-    const currentPhotos = view === "group"
-                            ? selectedGroup?.photos ?? []
-                            : photos;
+    const currentPhotos = view === "group" ? selectedGroup?.photos ?? [] : photos;
 
     const isAllSelected =  currentPhotos.length > 0 && selected.length === currentPhotos.length;
 

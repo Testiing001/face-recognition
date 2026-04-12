@@ -8,8 +8,6 @@ export const ViewAll = () => {
         photos, activeAction, deleteMode, showConfirm, setShowConfirm, 
         selected, toggleSelect, setSelected, hoveredPhoto, setHoveredPhoto,
     } = useAdmin();
-    
-    const noPhotoMessage = activeAction === "view" ? "No photos in database" : (activeAction === "delete" ? "No photos to delete" : "");
 
     return (
         <div>
@@ -52,7 +50,7 @@ export const ViewAll = () => {
                 <>
                     {photos.length === 0 && activeAction === "view" && 
                         <div className="min-h-[75vh] flex items-center justify-center">
-                            <p className="text-gray-500 text-lg font-semibold">{noPhotoMessage}</p>
+                            <p className="text-gray-500 text-lg font-semibold">No photos in database</p>
                         </div>
                     }
                 </>
