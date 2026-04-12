@@ -1,16 +1,15 @@
-import { LogOut, Trash2, ImageIcon, Users, UploadCloud, Loader } from "lucide-react";
+import { LogOut, ImageIcon, Users, UploadCloud, Loader } from "lucide-react";
 import { AdminProvider, useAdmin } from "../context/AdminContext";
 import { ViewAll } from "../components/admin/ViewAll";
 import { FaceGroups } from "../components/admin/FaceGroups";
-import { DeletePhotos } from "../components/admin/DeletePhotos";
 import { GroupPhotos } from "../components/admin/GroupPhotos";
 
 const AdminPageInner = () => {
     const {
-        adminProfile, view, activeAction, deleteMode, error, photos, 
-        isLoading, isUploading, fileInputRef, selectedGroup, isGroupLoading,
+        adminProfile, view, activeAction, error, isLoading, 
+        isUploading, fileInputRef, selectedGroup, isGroupLoading,
         handleViewAll, handleFaceGroups, handleUpload,
-        handleDelete, handleUploadPhotos, handleLogout,
+        handleUploadPhotos, handleLogout,
     } = useAdmin();
 
     return (
@@ -49,8 +48,6 @@ const AdminPageInner = () => {
 
             <div className="flex-1 overflow-y-auto px-6">
                 {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-
-                {photos.length > 0 && deleteMode && <DeletePhotos />}
 
                 {(isLoading || isUploading || isGroupLoading) && (
                     <div className="min-h-screen flex justify-center items-center gap-1">

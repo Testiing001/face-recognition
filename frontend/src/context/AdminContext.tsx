@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState} from "react";
 import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -42,13 +42,17 @@ interface AdminContextValue {
     view: View | null;
     activeAction: Action;
     deleteMode: boolean;
+    setDeleteMode: (value: boolean) => void;
     selected: number[];
+    setSelected: React.Dispatch<React.SetStateAction<number[]>>;
     error: string;
     isLoading: boolean;
     isUploading: boolean;
     isGroupLoading: boolean;
     selectedGroup: GroupPhotos | null;
     isAllSelected: boolean;
+    showConfirm: boolean;
+    setShowConfirm: React.Dispatch<React.SetStateAction<boolean>>;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     handleGroupPhotos: (group_id: number) => void;
     handleBackToGroups: () => void;
@@ -62,6 +66,7 @@ interface AdminContextValue {
     handleLogout: () => void;
     toggleSelect: (id: number) => void;
     handleSelectAllChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleConfirmDelete: (value: boolean) => void;
 }
 
 const AdminContext = createContext<AdminContextValue | null>(null);
@@ -75,13 +80,14 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([]);
     const [view, setView] = useState<View>("all");
     const [activeAction, setActiveAction] = useState<Action>("view");
-    const [deleteMode, setDeleteMode] = useState(false);
+    const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [selected, setSelected] = useState<number[]>([]);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isGroupLoading, setIsGroupLoading] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<GroupPhotos | null>(null);
+    const [showConfirm, setShowConfirm] = useState<boolean>(false);
 
     useEffect(() => {
         fetchAdminProfile();
@@ -145,7 +151,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const handleUploadPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setError("");
         const files = e.target.files;
-        if (!files) return;
+        if (!files)     return;
         setView(null);
         setDeleteMode(false);
         setActiveAction("upload");
@@ -183,6 +189,16 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             handleAuthError(err);
         }
     };
+
+    const handleConfirmDelete = (value: boolean) => {
+        if(value) {
+            handleDeletePhotos();   
+        }
+        else {
+            setSelected([]);
+        }
+        setShowConfirm(false);
+    }
 
     const handleGroupPhotos = async (group_id: number) => {
         setError("");
@@ -265,11 +281,11 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     return (
         <AdminContext.Provider value={{
             adminProfile, photos, faceGroups, view, activeAction,
-            deleteMode, selected, error, isLoading, isUploading,
-            isAllSelected, fileInputRef,selectedGroup, isGroupLoading, 
-            handleGroupPhotos, handleBackToGroups, handleViewAll, 
-            handleFaceGroups, handleUpload, handleDelete,
-            handleCancel, handleUploadPhotos, handleDeletePhotos,
+            deleteMode, setDeleteMode, selected, setSelected, error, isLoading, 
+            isUploading, isAllSelected, fileInputRef, selectedGroup, isGroupLoading,
+            showConfirm, setShowConfirm, handleGroupPhotos, handleBackToGroups, 
+            handleViewAll,handleFaceGroups, handleUpload, handleDelete, handleCancel, 
+            handleUploadPhotos, handleDeletePhotos, handleConfirmDelete, 
             handleLogout, toggleSelect, handleSelectAllChange,
         }}>
             {children}
