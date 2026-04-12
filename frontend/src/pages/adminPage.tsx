@@ -1,4 +1,4 @@
-import { LogOut, Trash2, ImageIcon, Users, UploadCloud } from "lucide-react";
+import { LogOut, Trash2, ImageIcon, Users, UploadCloud, Loader } from "lucide-react";
 import { AdminProvider, useAdmin } from "../context/AdminContext";
 import { ViewAll } from "../components/admin/ViewAll";
 import { FaceGroups } from "../components/admin/FaceGroups";
@@ -15,7 +15,7 @@ const AdminPageInner = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
-            <div className="w-3xs bg-gray-900 text-white p-4 flex flex-col justify-between flex-shrink-0">
+            <div className="w-3xs bg-gray-900 text-white p-4 flex flex-col justify-between">
                 <div>
                     <div className="mb-6 mx-3">
                         <p className="text-xl font-semibold">{adminProfile?.fullname}</p>
@@ -27,16 +27,13 @@ const AdminPageInner = () => {
 
                     <div className="flex flex-col gap-2">
                         <button onClick={handleViewAll} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "view" ? "bg-gray-800" : ""}`}>
-                            <ImageIcon size={16} /> View All Photos
+                            <ImageIcon size={16} /> All Photos
                         </button>
                         <button onClick={handleFaceGroups} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "faces" ? "bg-gray-800" : ""}`}>
                             <Users size={16} /> Face Groups
                         </button>
                         <button onClick={handleUpload} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "upload" ? "bg-gray-800" : ""}`}>
                             <UploadCloud size={16} /> Upload Photos
-                        </button>
-                        <button onClick={handleDelete} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer text-white ${activeAction === "delete" ? "bg-gray-800" : ""}`}>
-                            <Trash2 size={16} /> Delete Photos
                         </button>
                         <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleUploadPhotos} />
                     </div>
@@ -56,12 +53,14 @@ const AdminPageInner = () => {
                 {photos.length > 0 && deleteMode && <DeletePhotos />}
 
                 {(isLoading || isUploading || isGroupLoading) && (
-                    <div className="h-screen flex justify-center items-center">
-                        <p className="text-gray-500 text-lg text-center font-semibold">
-                            {isLoading && "Loading photos..."}
-                            {isUploading && "Uploading photos..."}
-                            {isGroupLoading && "Loading groups..."}
+                    <div className="min-h-screen flex justify-center items-center gap-1">
+                        <p className="text-gray-500 text-lg font-semibold">
+                            {isLoading && "Loading photos"}
+                            {isUploading && "Uploading photos"}
+                            {isGroupLoading && "Loading groups"}
                         </p>
+                        {(isLoading || isGroupLoading) && <Loader size={24} className="animate-spin text-gray-500" />}
+                        {isUploading && <UploadCloud size={28} className="animate-[bounce_3s_ease-out_infinite] text-gray-500 mt-2" />}
                     </div>
                 )}
 

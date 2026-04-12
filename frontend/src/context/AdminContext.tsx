@@ -147,6 +147,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         const files = e.target.files;
         if (!files) return;
         setView(null);
+        setDeleteMode(false);
         setActiveAction("upload");
         setIsUploading(true);
         const formData = new FormData();
@@ -155,11 +156,13 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             await axios.post(`${BACKEND_URL}/admin/upload/`, formData, {
                 headers: { ...getAuthHeaders(), "Content-Type": "multipart/form-data" },
             });
+            setIsUploading(false);
             await fetchPhotos();
         } catch (err: any) {
             handleAuthError(err);
         } finally {
-            setIsUploading(false);
+            setView("all");
+            setActiveAction("view");
             e.target.value = "";
         }
     };
