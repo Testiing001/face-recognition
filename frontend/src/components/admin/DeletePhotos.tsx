@@ -50,7 +50,7 @@ export const DeletePhotos = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="flex justify-between items-center text-lg gap-2 mt-2 mb-5 font-semibold text-gray-700">
+                        <div className="flex justify-between items-center text-lg gap-2 mb-3 py-1.5 font-semibold text-gray-700">
                             <p>
                                 {view === "all"
                                     ? `${photos.length} ${photos.length > 1 ? "Photos" : "Photo"}`

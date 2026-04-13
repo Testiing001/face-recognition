@@ -15,12 +15,15 @@ async def search_face(file: UploadFile = File(...)):
     try:
         embeddings = get_embeddings(tmp_path)
     except Exception:
-        raise HTTPException(status_code=400, detail="No face detected. Please upload a clear image.")
+        raise HTTPException(status_code=400, detail="Face processing failed.")
     finally:
         if os.path.exists(tmp_path):
             os.unlink(tmp_path)
 
-    if len(embeddings) != 1:
+    if len(embeddings) == 0:
+        raise HTTPException(status_code=400, detail="No face detected. Please upload a clear image.")
+    
+    if len(embeddings) > 1:
         raise HTTPException(
             status_code=400,
             detail="Multiple faces detected. Please make sure only one face is visible."
