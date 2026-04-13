@@ -24,7 +24,7 @@ export const FaceGroups = () => {
                                         <div
                                             key={group.group_id}
                                             onClick={() => handleGroupPhotos(group.group_id)}
-                                            className="p-3 rounded-xl bg-gray-200/60 shadow-lg shadow-gray-400/60 hover:scale-103 transition cursor-pointer flex flex-col items-center"
+                                            className="p-3 rounded-xl bg-gray-100 shadow-lg shadow-gray-200 hover:scale-103 transition cursor-pointer flex flex-col items-center"
                                         >
                                             <div className="w-40 h-40 rounded-full overflow-hidden relative bg-gray-200">
                                             `    <img

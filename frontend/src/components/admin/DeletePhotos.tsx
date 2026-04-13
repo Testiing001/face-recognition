@@ -12,7 +12,7 @@ export const DeletePhotos = () => {
             {photos.length > 0 &&
                 <>
                     {deleteMode ? (  
-                      <div className="flex justify-between items-center gap-3 mb-4 font-semibold text-gray-700">
+                        <div className="flex justify-between items-center gap-3 mb-4 font-semibold text-gray-700">
                             <p className="text-lg text-gray-700">{selected.length} Selected</p>
                             <div className="flex gap-3">
                                 <label className="flex items-center text-lg gap-2 cursor-pointer">
@@ -44,23 +44,22 @@ export const DeletePhotos = () => {
                             </div>
                         </div>
                     ) : (
-                        <label className="w-full flex justify-between items-center text-lg gap-2 mt-2 mb-5 font-semibold text-gray-700">
+                        <div className="flex justify-between items-center text-lg gap-2 mt-2 mb-5 font-semibold text-gray-700">
                             <p>
                                 {view === "all"
                                     ? `${photos.length} ${photos.length > 1 ? "Photos" : "Photo"}`
                                     : `${selectedGroup?.count} ${selectedGroup?.count ?? 0 > 1 ? "Photos" : "Photo"}`
                                 }
-                                </p>
-                            <div className="flex items-center gap-2 cursor-pointer"> 
+                            </p>
+                            <label className="flex items-center gap-2 cursor-pointer"> 
                                 <input
                                     type="checkbox"
-                                    checked={deleteMode}
-                                    onChange={() => setDeleteMode(true)}
+                                    onClick={() => setDeleteMode(true)}
                                     className="w-4 h-4 accent-blue-500 cursor-pointer"
                                 />
                                 Select Photos
-                            </div>
-                        </label>
+                            </label>
+                        </div>
                     )}
                 </>
             }

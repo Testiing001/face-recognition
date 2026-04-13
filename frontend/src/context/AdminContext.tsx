@@ -224,13 +224,13 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleConfirmDelete = (value: boolean) => {
-        setShowConfirm(false);
         if(value) {
             handleDeletePhotos();   
         }
         else {
             setSelected([]);
         }
+        setShowConfirm(false);
     }
 
     const handleGroupPhotos = async (group_id: number) => {

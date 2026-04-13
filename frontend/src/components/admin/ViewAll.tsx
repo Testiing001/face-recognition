@@ -16,12 +16,12 @@ export const ViewAll = () => {
             {photos.length > 0 ? ( 
                 <>
                     <DeletePhotos />
-                    <div className="min-h-[75vh] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+                    <div className="min-h-[75vh] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {photos.map((photo) => (
                             <div
                                 key={photo.id}
                                 onClick={() => deleteMode && toggleSelect(photo.id)}
-                                className={`${selected.includes(photo.id) ? "ring-6 scale-95 ring-blue-600/60 rounded-xl transition-all duration-200" : `${deleteMode ? "cursor-pointer hover:scale-98 transition-all duration-200" : ""}`} relative`}
+                                className={`${deleteMode && selected.includes(photo.id) ? "ring-5 scale-96 ring-blue-600/55 rounded-xl transition-all duration-200 cursor-pointer" : `${deleteMode ? "cursor-pointer hover:scale-103 transition-all duration-200" : ""}`} relative`}
                                 onMouseEnter={() => setHoveredPhoto(photo.id)}
                                 onMouseLeave={() => setHoveredPhoto(null)}
                             >
@@ -45,11 +45,11 @@ export const ViewAll = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-center fixed sticky items-center bottom-0 py-2 bg-white border-t-3 border-t-gray-300">
+                    <div className="flex justify-center fixed sticky items-center bottom-0 py-2 bg-white gap-2">
                         <button
                             disabled={page === 1}
                             onClick={() => fetchPhotos(page - 1)}
-                            className={`${page === 1 ? "cursor-not-allowed" : "cursor-pointer"} px-3 py-1 bg-gray-200 rounded disabled:opacity-50`}
+                            className={`${page === 1 ? "cursor-not-allowed" : "hover:bg-gray-300 cursor-pointer"} px-4 py-1 bg-gray-200 rounded disabled:opacity-60`}
                         >
                             Prev
                         </button>
@@ -59,7 +59,7 @@ export const ViewAll = () => {
                         <button
                             disabled={page === totalPages}
                             onClick={() => fetchPhotos(page + 1)}
-                            className={`${page === totalPages ? "cursor-not-allowed" : "cursor-pointer"} px-3 py-1 bg-gray-200 rounded disabled:opacity-50`}
+                            className={`${page === totalPages ? "cursor-not-allowed" : "hover:bg-gray-300 cursor-pointer"} px-3 py-1 bg-gray-200 rounded disabled:opacity-50`}
                         >
                             Next
                         </button>
