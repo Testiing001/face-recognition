@@ -16,7 +16,7 @@ export const ViewAll = () => {
             {photos.length > 0 ? ( 
                 <>
                     <DeletePhotos />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+                    <div className="min-h-[75vh] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
                         {photos.map((photo) => (
                             <div
                                 key={photo.id}
@@ -45,7 +45,7 @@ export const ViewAll = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-center items-center gap-3 sticky py-1 bottom-0 bg-white border-t-3 border-t-gray-300">
+                    <div className="flex justify-center fixed sticky items-center bottom-0 py-2 bg-white border-t-3 border-t-gray-300">
                         <button
                             disabled={page === 1}
                             onClick={() => fetchPhotos(page - 1)}
