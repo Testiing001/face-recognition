@@ -53,6 +53,9 @@ interface AdminContextValue {
     showConfirm: boolean;
     hoveredPhoto: number | null;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
+    page: number;
+    totalPages: number;
+    fetchPhotos: (page?: number) => Promise<void>; 
     setDeleteMode: (value: boolean) => void;
     setSelected: React.Dispatch<React.SetStateAction<number[]>>;
     setShowConfirm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -92,10 +95,12 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [selectedGroup, setSelectedGroup] = useState<GroupPhotos | null>(null);
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
     const [hoveredPhoto, setHoveredPhoto] = useState<number | null>(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         fetchAdminProfile();
-        fetchPhotos();
+        fetchPhotos(1);
     }, []);
 
     const handleAuthError = (err: any) => {
@@ -109,14 +114,16 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const fetchPhotos = async () => {
+    const fetchPhotos = async (currentPage = page) => {
         setError("");
         setDeleteMode(false);
         setIsGroupLoading(false);
         setIsLoading(true);
         try {
-            const res = await axios.get(`${BACKEND_URL}/admin/view/`, { headers: getAuthHeaders() });
+            const res = await axios.get(`${BACKEND_URL}/admin/view/?page=${currentPage}&limit=20`, { headers: getAuthHeaders() });
             setPhotos(res.data.faces);
+            setPage(res.data.page);
+            setTotalPages(res.data.total_pages);
         } catch (err: any) {
             handleAuthError(err);
         } finally {
@@ -168,7 +175,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             });
             setIsUploading(false);
             toast.success(files.length > 1 ? "Photos Uploaded" : "Photo Uploaded");
-            await fetchPhotos();
+            await fetchPhotos(1);
         } catch (err: any) {
             handleAuthError(err);
         } finally {
@@ -188,18 +195,29 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             });
             toast.error(count > 1 ? "Photos deleted" : "Photo deleted");
             await fetchFaceGroups();
-            setPhotos((prev) => prev.filter((img) => !selected.includes(img.id)));
-            setSelectedGroup((prev) =>
-                prev ? {
+            
+            setSelectedGroup((prev) => prev ? {
                     ...prev,
-                    photos: prev.photos.filter((img) => !selected.includes(img.id)),
+                    photos: prev.photos.filter(
+                        (img) => !selected.includes(img.id)
+                    ),
                     count: prev.count - count,
-                }
-                : null
+                } : null
             );
+            if (view === "all") {
+                if (photos.length === count && page > 1) {
+                    await fetchPhotos(page - 1);
+                } else {
+                    await fetchPhotos(page);
+                }
+            } else {
+                setPhotos((prev) =>
+                    prev.filter((img) => !selected.includes(img.id))
+                );
+            }
         } catch (err: any) {
             handleAuthError(err);
-        } finally{
+        } finally {
             setDeleteMode(false);
             setSelected([]);
         }
@@ -240,7 +258,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         setSelected([]);
         if(view === "all" && photos.length > 0)      return; 
         setView("all"); 
-        fetchPhotos();
+        fetchPhotos(1);
         setActiveAction("view"); 
     };
 
@@ -302,10 +320,10 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             adminProfile, photos, faceGroups, view, activeAction,
             deleteMode, setDeleteMode, selected, setSelected, error, isLoading, 
             isUploading, isAllSelected, fileInputRef, selectedGroup, isGroupLoading,
-            showConfirm, hoveredPhoto, setShowConfirm, setHoveredPhoto, handleGroupPhotos, 
-            handleBackToGroups, handleViewAll,handleFaceGroups, handleUpload, 
-            handleDelete, handleCancel, handleUploadPhotos, handleDeletePhotos, 
-            handleConfirmDelete, handleLogout, toggleSelect, handleSelectAllChange,
+            showConfirm, hoveredPhoto, page, totalPages, fetchPhotos, setShowConfirm, 
+            setHoveredPhoto, handleGroupPhotos, handleBackToGroups, handleViewAll,
+            handleFaceGroups, handleUpload, handleDelete, handleCancel, handleUploadPhotos, 
+            handleDeletePhotos, handleConfirmDelete, handleLogout, toggleSelect, handleSelectAllChange,
         }}>
             {children}
         </AdminContext.Provider>

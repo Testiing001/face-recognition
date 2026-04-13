@@ -7,6 +7,7 @@ export const ViewAll = () => {
     const { 
         photos, activeAction, deleteMode, showConfirm, setShowConfirm, 
         selected, toggleSelect, setSelected, hoveredPhoto, setHoveredPhoto,
+        fetchPhotos, page, totalPages,
     } = useAdmin();
 
     return (
@@ -20,7 +21,7 @@ export const ViewAll = () => {
                             <div
                                 key={photo.id}
                                 onClick={() => deleteMode && toggleSelect(photo.id)}
-                                className={`${deleteMode ? "cursor-pointer" : ""} relative`}
+                                className={`${selected.includes(photo.id) ? "ring-6 scale-95 ring-blue-600/60 rounded-xl transition-all duration-200" : `${deleteMode ? "cursor-pointer hover:scale-98 transition-all duration-200" : ""}`} relative`}
                                 onMouseEnter={() => setHoveredPhoto(photo.id)}
                                 onMouseLeave={() => setHoveredPhoto(null)}
                             >
@@ -43,6 +44,25 @@ export const ViewAll = () => {
                                 )}
                             </div>
                         ))}
+                    </div>
+                    <div className="flex justify-center items-center gap-3 sticky py-1 bottom-0 bg-white border-t-3 border-t-gray-300">
+                        <button
+                            disabled={page === 1}
+                            onClick={() => fetchPhotos(page - 1)}
+                            className={`${page === 1 ? "cursor-not-allowed" : "cursor-pointer"} px-3 py-1 bg-gray-200 rounded disabled:opacity-50`}
+                        >
+                            Prev
+                        </button>
+                        <span className="px-3 py-1">
+                            {page} / {totalPages}
+                        </span>
+                        <button
+                            disabled={page === totalPages}
+                            onClick={() => fetchPhotos(page + 1)}
+                            className={`${page === totalPages ? "cursor-not-allowed" : "cursor-pointer"} px-3 py-1 bg-gray-200 rounded disabled:opacity-50`}
+                        >
+                            Next
+                        </button>
                     </div>
                     {showConfirm && <ConfirmModal />}
                 </>

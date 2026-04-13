@@ -13,17 +13,24 @@ def get_face_groups():
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            SELECT 
+            SELECT
                 g.id,
                 i.image_data,
-                f_thumb.bbox,
+                f_pick.bbox,
                 COUNT(DISTINCT f.image_id) AS count
             FROM groups g
-            JOIN faces f_thumb ON g.face_id = f_thumb.id
-            JOIN images i ON f_thumb.image_id = i.id
             JOIN faces f ON f.group_id = g.id
-            GROUP BY g.id, i.image_data, f_thumb.bbox
+            JOIN faces f_pick ON f_pick.id = (
+                SELECT f2.id
+                FROM faces f2
+                WHERE f2.group_id = g.id
+                ORDER BY f2.id ASC
+                LIMIT 1
+            )
+            JOIN images i ON i.id = f_pick.image_id
+            GROUP BY g.id, i.image_data, f_pick.bbox
         """)
+
         rows = cursor.fetchall()
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to fetch face groups")

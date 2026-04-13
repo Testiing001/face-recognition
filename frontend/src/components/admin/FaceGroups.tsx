@@ -9,7 +9,7 @@ export const FaceGroups = () => {
                     <h1 className="my-3 text-3xl font-bold text-gray-800">Face Groups</h1>
                     {photos.length > 0 ? (
                         <>
-                            <p className="font-semibold text-gray-500">Select a group to view matching photos</p>
+                            <p className="font-semibold text-gray-500">Select a group to view photos</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 my-4 gap-5">
                                 {faceGroups.map((group) => {
                                     const [x1, y1, x2, y2] = group.bbox;
@@ -24,7 +24,7 @@ export const FaceGroups = () => {
                                         <div
                                             key={group.group_id}
                                             onClick={() => handleGroupPhotos(group.group_id)}
-                                            className="p-3 rounded-xl bg-gray-100/70 shadow-lg hover:scale-103 transition cursor-pointer flex flex-col items-center"
+                                            className="p-3 rounded-xl bg-gray-200/60 shadow-lg shadow-gray-400/60 hover:scale-103 transition cursor-pointer flex flex-col items-center"
                                         >
                                             <div className="w-40 h-40 rounded-full overflow-hidden relative bg-gray-200">
                                             `    <img
