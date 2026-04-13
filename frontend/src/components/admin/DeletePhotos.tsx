@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { useAdmin } from "../../context/AdminContext";
 
 export const DeletePhotos = () => {
@@ -27,7 +27,7 @@ export const DeletePhotos = () => {
                                 <button
                                     onClick={() => setShowConfirm(true)}
                                     disabled={selected.length === 0}
-                                    className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-white
+                                    className={`px-3 py-1.5 flex justify-center items-center gap-1 rounded-lg text-white
                                         ${selected.length
                                             ? "bg-red-600 hover:bg-red-500 cursor-pointer" 
                                             : "bg-red-800 cursor-not-allowed" 
@@ -35,12 +35,17 @@ export const DeletePhotos = () => {
                                     }
                                 >
                                     <Trash2 size={16} />
-                                    Delete {selected.length > 0 ? `(${selected.length})` : ""}
+                                    <span className="hidden sm:inline">
+                                        Delete {selected.length > 0 ? `(${selected.length})` : ""}
+                                    </span>
                                 </button>
                                 <button
                                     onClick={handleCancel}
-                                    className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900">
-                                    Cancel
+                                    className="px-3 py-1.5 flex justify-center items-center bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900">
+                                    <X size={16} />
+                                    <span className="hidden sm:inline">
+                                        Cancel
+                                    </span>
                             </button>
                             </div>
                         </div>

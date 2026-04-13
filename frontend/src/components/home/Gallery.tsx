@@ -23,7 +23,7 @@ export const Gallery = () => {
                                 <img
                                     src={v?.image}
                                     alt={`${v?.image}.jpeg`}
-                                    className="relative rounded-xl transition-transform duration-300"
+                                    className="relative rounded-xl object-cover aspect-square transition-transform duration-300"
                                 />
                                 <div
                                     onClick={() => handleFullImage(i)}
