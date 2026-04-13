@@ -67,7 +67,6 @@ interface AdminContextValue {
     handleViewAll: () => void;
     handleFaceGroups: () => void;
     handleUpload: () => void;
-    handleDelete: () => void;
     handleCancel: () => void;
     handleUploadPhotos: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
     handleDeletePhotos: () => Promise<void>;
@@ -189,6 +188,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleDeletePhotos = async () => {
+        setError("");
         const count = selected.length;
         if (count === 0) return;
         try {
@@ -280,16 +280,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         fileInputRef.current?.click();
     };
 
-    const handleDelete = () => { 
-        setDeleteMode(true);
-        setIsGroupLoading(false);
-        if(activeAction === "delete")     return;
-        setView("all");
-        setSelected([]); 
-        setError(""); 
-        setActiveAction("delete"); 
-    };
-
     const handleCancel = () => { 
         setSelected([]); 
         setDeleteMode(false); 
@@ -325,7 +315,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             isUploading, isAllSelected, fileInputRef, selectedGroup, isGroupLoading,
             showConfirm, hoveredPhoto, page, totalPages, fetchPhotos, setShowConfirm, 
             setHoveredPhoto, handleGroupPhotos, handleBackToGroups, handleViewAll,
-            handleFaceGroups, handleUpload, handleDelete, handleCancel, handleUploadPhotos, 
+            handleFaceGroups, handleUpload, handleCancel, handleUploadPhotos, 
             handleDeletePhotos, handleConfirmDelete, handleLogout, toggleSelect, 
             handleSelectAllChange, setSidebarOpen,
         }}>
