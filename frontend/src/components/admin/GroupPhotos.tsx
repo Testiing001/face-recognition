@@ -22,7 +22,7 @@ export const GroupPhotos = () => {
             {selectedGroup.photos.length > 0 ? ( 
                 <>
                     <DeletePhotos />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-3">
                         {selectedGroup.photos?.map((photo) => (
                             <div
                                 key={photo.id}
