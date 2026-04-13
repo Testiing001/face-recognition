@@ -6,10 +6,9 @@ import { GroupPhotos } from "../components/admin/GroupPhotos";
 
 const AdminPageInner = () => {
     const {
-        adminProfile, view, activeAction, error, isLoading, 
-        isUploading, fileInputRef, selectedGroup, isGroupLoading,
-        sidebarOpen, handleViewAll, handleFaceGroups, handleUpload,
-        handleUploadPhotos, handleLogout, setSidebarOpen,
+        adminProfile, activeTab, error, isLoading, fileInputRef, 
+        selectedGroup, sidebarOpen, handleViewAll, handleFaceGroups, 
+        handleUpload, handleUploadPhotos, handleLogout, setSidebarOpen,
     } = useAdmin();
 
     return (
@@ -42,13 +41,13 @@ const AdminPageInner = () => {
                         <hr className="border-gray-700 mb-4" />
 
                         <div className="flex flex-col gap-2">
-                            <button onClick={handleViewAll} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "view" ? "bg-gray-800" : ""}`}>
+                            <button onClick={handleViewAll} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeTab === "all" ? "bg-gray-800" : ""}`}>
                                 <ImageIcon size={16} /> All Photos
                             </button>
-                            <button onClick={handleFaceGroups} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "faces" ? "bg-gray-800" : ""}`}>
+                            <button onClick={handleFaceGroups} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeTab === "groups" ? "bg-gray-800" : ""}`}>
                                 <Users size={16} /> Face Groups
                             </button>
-                            <button onClick={handleUpload} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeAction === "upload" ? "bg-gray-800" : ""}`}>
+                            <button onClick={handleUpload} className={`text-left px-3 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2 cursor-pointer ${activeTab === "upload" ? "bg-gray-800" : ""}`}>
                                 <UploadCloud size={16} /> Upload Photos
                             </button>
                             <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleUploadPhotos} />
@@ -71,21 +70,26 @@ const AdminPageInner = () => {
                 <div className="flex-1 overflow-y-auto px-6">
                     {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-                    {(isLoading || isUploading || isGroupLoading) && (
+                    {(isLoading) && (
                         <div className="min-h-screen flex justify-center items-center gap-1">
                             <p className="text-gray-500 text-lg font-semibold">
-                                {isLoading && "Loading photos"}
-                                {isUploading && "Uploading photos"}
-                                {isGroupLoading && "Loading groups"}
+                                {activeTab === "all" 
+                                    ? "Loading photos" 
+                                    : activeTab === "groups" 
+                                        ? "Loading groups" 
+                                        : "Uploading photos"
+                                }
                             </p>
-                            {(isLoading || isGroupLoading) && <Loader size={24} className="animate-spin text-gray-500" />}
-                            {isUploading && <UploadCloud size={28} className="animate-[bounce_3s_ease-out_infinite] text-gray-500 mt-2" />}
+                            {(activeTab === "all" || activeTab === "groups") 
+                                ? <Loader size={24} className="animate-spin text-gray-500" />
+                                : <UploadCloud size={28} className="animate-[bounce_3s_ease-out_infinite] text-gray-500 mt-2" />
+                            }
                         </div>
                     )}
 
-                    {view === "all" && !isLoading && !isUploading && <ViewAll />}
+                    {activeTab === "all" && !isLoading && <ViewAll />}
                     
-                    {view === "group" && !isLoading && (
+                    {activeTab === "groups" && !isLoading && (
                         selectedGroup ? <GroupPhotos /> : <FaceGroups />
                     )}
                 </div>

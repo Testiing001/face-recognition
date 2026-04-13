@@ -5,14 +5,14 @@ import { DeletePhotos } from "./DeletePhotos";
 
 export const ViewAll = () => {
     const { 
-        photos, activeAction, deleteMode, showConfirm, setShowConfirm, 
+        photos, activeTab, deleteMode, showConfirm, setShowConfirm, 
         selected, toggleSelect, setSelected, hoveredPhoto, setHoveredPhoto,
-        fetchPhotos, page, totalPages
+        fetchPhotos, pageInfo
     } = useAdmin();
 
     return (
         <div>
-            {activeAction === "view" && <h1 className="md:mt-3 mt-15 mb-1 text-3xl font-bold text-gray-800">All Photos</h1>}
+            {activeTab === "all" && <h1 className="md:mt-3 mt-15 mb-1 text-3xl font-bold text-gray-800">All Photos</h1>}
             {photos.length > 0 ? ( 
                 <>
                     <div className="min-h-[85vh]">
@@ -53,21 +53,21 @@ export const ViewAll = () => {
                             ))}
                         </div>
                     </div>
-                    <div className="flex justify-center fixed sticky items-center bottom-0 mt-2 bg-white gap-2">
+                    <div className="flex justify-center fixed sticky items-center bottom-0 py-2 bg-white gap-2">
                         <button
-                            disabled={page === 1}
-                            onClick={() => fetchPhotos(page - 1)}
-                            className={`${page === 1 ? "cursor-not-allowed" : "hover:bg-gray-300 cursor-pointer"} px-4 bg-gray-200 rounded disabled:opacity-60`}
+                            disabled={pageInfo.page === 1}
+                            onClick={() => fetchPhotos(pageInfo.page - 1)}
+                            className={`${pageInfo.page === 1 ? "cursor-not-allowed" : "hover:bg-gray-400 cursor-pointer"} px-4 py-1 bg-gray-300 rounded disabled:opacity-60`}
                         >
                             Prev
                         </button>
-                        <span className="px-3">
-                            {page} / {totalPages}
+                        <span className="px-3 py-1">
+                            {pageInfo.page} / {pageInfo.totalPages}
                         </span>
                         <button
-                            disabled={page === totalPages}
-                            onClick={() => fetchPhotos(page + 1)}
-                            className={`${page === totalPages ? "cursor-not-allowed" : "hover:bg-gray-300 cursor-pointer"} px-3 bg-gray-200 rounded disabled:opacity-60`}
+                            disabled={pageInfo.page === pageInfo.totalPages}
+                            onClick={() => fetchPhotos(pageInfo.page + 1)}
+                            className={`${pageInfo.page === pageInfo.totalPages ? "cursor-not-allowed" : "hover:bg-gray-400 cursor-pointer"} px-4 py-1 bg-gray-300 rounded disabled:opacity-60`}
                         >
                             Next
                         </button>
@@ -76,7 +76,7 @@ export const ViewAll = () => {
                 </>
             ) : (
                 <>
-                    {photos.length === 0 && activeAction === "view" && 
+                    {photos.length === 0 && activeTab === "all" && 
                         <div className="min-h-[75vh] flex items-center justify-center">
                             <p className="text-gray-500 text-lg font-semibold">No photos in database</p>
                         </div>

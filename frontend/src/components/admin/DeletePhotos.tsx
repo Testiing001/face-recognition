@@ -3,7 +3,7 @@ import { useAdmin } from "../../context/AdminContext";
 
 export const DeletePhotos = () => {
     const {
-        view, photos, deleteMode, setDeleteMode, isAllSelected, 
+        activeTab, photos, deleteMode, setDeleteMode, isAllSelected, 
         handleSelectAllChange, selectedGroup, setShowConfirm, selected, handleCancel
     } = useAdmin()
 
@@ -52,7 +52,7 @@ export const DeletePhotos = () => {
                     ) : (
                         <div className="flex justify-between items-center text-lg gap-2 mb-3 py-1.5 font-semibold text-gray-700">
                             <p>
-                                {view === "all"
+                                {activeTab === "all"
                                     ? `${photos.length} ${photos.length > 1 ? "Photos" : "Photo"}`
                                     : `${selectedGroup?.count} ${selectedGroup?.count ?? 0 > 1 ? "Photos" : "Photo"}`
                                 }

@@ -1,10 +1,10 @@
 import { useAdmin } from "../../context/AdminContext";
 export const FaceGroups = () => {
-    const { photos, faceGroups, isGroupLoading, handleGroupPhotos } = useAdmin();
+    const { photos, faceGroups, isLoading, handleGroupPhotos } = useAdmin();
 
     return (
         <>
-            {!isGroupLoading && 
+            {!isLoading && 
                 <>
                     <h1 className="md:mt-3 mt-15 mb-3 text-3xl font-bold text-gray-800">Face Groups</h1>
                     {photos.length > 0 ? (
