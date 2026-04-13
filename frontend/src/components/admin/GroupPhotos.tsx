@@ -27,7 +27,7 @@ export const GroupPhotos = () => {
                             <div
                                 key={photo.id}
                                 onClick={() => deleteMode && toggleSelect(photo.id)}
-                                className={`${deleteMode && selected.includes(photo.id) ? "ring-6 scale-95 ring-blue-600/60 rounded-xl transition-all duration-200" : `${deleteMode ? "cursor-pointer hover:scale-98 transition-all duration-200" : ""}`} relative`}
+                                className={`${deleteMode && selected.includes(photo.id) ? "ring-5 scale-96 ring-blue-500/70 rounded-xl transition-all duration-200 cursor-pointer" : `${deleteMode ? "cursor-pointer hover:scale-103 transition-all duration-200" : ""}`} relative`}
                                 onMouseEnter={() => setHoveredPhoto(photo.id)}
                                 onMouseLeave={() => setHoveredPhoto(null)}
                             >

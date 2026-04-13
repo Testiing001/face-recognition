@@ -41,7 +41,7 @@ export const DeletePhotos = () => {
                                 </button>
                                 <button
                                     onClick={handleCancel}
-                                    className="px-3 py-1.5 flex justify-center items-center bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900">
+                                    className="px-3 py-1.5 flex justify-center items-center gap-1 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900">
                                     <X size={16} />
                                     <span className="hidden sm:inline">
                                         Cancel
