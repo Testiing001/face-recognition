@@ -2,6 +2,8 @@ import sys
 from app.utils.security import hash_password
 from app.db.connection import get_db_connection
 
+# To add new admin
+# run python app.utils.add_admin <username> <password> <fullname> <email>
 username = sys.argv[1]
 password = sys.argv[2]
 fullname = sys.argv[3]

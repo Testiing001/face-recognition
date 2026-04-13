@@ -180,6 +180,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             await fetchPhotos(1);
         } catch (err: any) {
             handleAuthError(err);
+            setIsUploading(false);
         } finally {
             setView("all");
             setActiveAction("view");
