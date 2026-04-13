@@ -6,7 +6,7 @@ export const FaceGroups = () => {
         <>
             {!isGroupLoading && 
                 <>
-                    <h1 className="my-3 text-3xl font-bold text-gray-800">Face Groups</h1>
+                    <h1 className="md:mt-3 mt-15 mb-3 text-3xl font-bold text-gray-800">Face Groups</h1>
                     {photos.length > 0 ? (
                         <>
                             <p className="font-semibold text-gray-500">Select a group to view photos</p>

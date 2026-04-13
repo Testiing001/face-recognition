@@ -55,6 +55,8 @@ interface AdminContextValue {
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     page: number;
     totalPages: number;
+    sidebarOpen: boolean;
+    setSidebarOpen: (value: boolean) => void;
     fetchPhotos: (page?: number) => Promise<void>; 
     setDeleteMode: (value: boolean) => void;
     setSelected: React.Dispatch<React.SetStateAction<number[]>>;
@@ -95,8 +97,9 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const [selectedGroup, setSelectedGroup] = useState<GroupPhotos | null>(null);
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
     const [hoveredPhoto, setHoveredPhoto] = useState<number | null>(null);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [page, setPage] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(1);
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
     useEffect(() => {
         fetchAdminProfile();
@@ -317,13 +320,14 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <AdminContext.Provider value={{
-            adminProfile, photos, faceGroups, view, activeAction,
+            adminProfile, photos, faceGroups, view, activeAction, sidebarOpen,
             deleteMode, setDeleteMode, selected, setSelected, error, isLoading, 
             isUploading, isAllSelected, fileInputRef, selectedGroup, isGroupLoading,
             showConfirm, hoveredPhoto, page, totalPages, fetchPhotos, setShowConfirm, 
             setHoveredPhoto, handleGroupPhotos, handleBackToGroups, handleViewAll,
             handleFaceGroups, handleUpload, handleDelete, handleCancel, handleUploadPhotos, 
-            handleDeletePhotos, handleConfirmDelete, handleLogout, toggleSelect, handleSelectAllChange,
+            handleDeletePhotos, handleConfirmDelete, handleLogout, toggleSelect, 
+            handleSelectAllChange, setSidebarOpen,
         }}>
             {children}
         </AdminContext.Provider>

@@ -27,20 +27,21 @@ export const DeletePhotos = () => {
                                 <button
                                     onClick={() => setShowConfirm(true)}
                                     disabled={selected.length === 0}
-                                    className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-white ${selected.length
-                                        ? "bg-red-600 hover:bg-red-500 cursor-pointer"
-                                        : "bg-red-800 cursor-not-allowed"
-                                    }`}
+                                    className={`px-3 py-1.5 flex items-center gap-1 rounded-lg text-white
+                                        ${selected.length
+                                            ? "bg-red-600 hover:bg-red-500 cursor-pointer" 
+                                            : "bg-red-800 cursor-not-allowed" 
+                                        }`
+                                    }
                                 >
                                     <Trash2 size={16} />
                                     Delete {selected.length > 0 ? `(${selected.length})` : ""}
                                 </button>
                                 <button
                                     onClick={handleCancel}
-                                    className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900"
-                                >
+                                    className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-lg text-gray-900">
                                     Cancel
-                                </button>
+                            </button>
                             </div>
                         </div>
                     ) : (
@@ -51,7 +52,7 @@ export const DeletePhotos = () => {
                                     : `${selectedGroup?.count} ${selectedGroup?.count ?? 0 > 1 ? "Photos" : "Photo"}`
                                 }
                             </p>
-                            <label className="flex items-center gap-2 cursor-pointer"> 
+                            <label className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="checkbox"
                                     onClick={() => setDeleteMode(true)}

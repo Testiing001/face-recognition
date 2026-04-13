@@ -88,7 +88,7 @@ export const Scan = () => {
                 )}
 
                 {isSearching && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl z-5">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl z-2">
                         <div className="flex flex-col items-center gap-3 text-white">
                             <div className="w-10 h-10 text-gray-700 border-5 border-gray-500 border-t-transparent rounded-full animate-spin" />
                             <p className="font-semibold text">Searching your face...</p>

@@ -7,12 +7,12 @@ export const ViewAll = () => {
     const { 
         photos, activeAction, deleteMode, showConfirm, setShowConfirm, 
         selected, toggleSelect, setSelected, hoveredPhoto, setHoveredPhoto,
-        fetchPhotos, page, totalPages,
+        fetchPhotos, page, totalPages
     } = useAdmin();
 
     return (
         <div>
-            {activeAction === "view" && <h1 className="mt-3 mb-1 text-3xl font-bold text-gray-800">All Photos</h1>}
+            {activeAction === "view" && <h1 className="md:mt-3 mt-15 mb-1 text-3xl font-bold text-gray-800">All Photos</h1>}
             {photos.length > 0 ? ( 
                 <>
                     <DeletePhotos />

@@ -9,7 +9,7 @@ export const Viewer = () => {
 
     return (
         <div className="bg-black/90">
-            <div className="fixed w-full h-14 top-0 left-0 bg-black/50 z-3">
+            <div className="fixed w-full h-14 top-0 left-0 bg-black/50 z-2">
                 
                 {matches.length > 1 && (
                     <div className="absolute top-4 left-4 text-white mx-6">
@@ -60,7 +60,7 @@ export const Viewer = () => {
                 </button>
 
                 {isImageLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-5">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-3">
                         <div className="flex flex-col items-center gap-2 text-white">
                             <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin" />
                             <p className="font-semibold">Loading image...</p>
