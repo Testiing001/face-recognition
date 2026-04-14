@@ -1,13 +1,9 @@
 import axios from "axios";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState} from "react";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
-export interface PhotoItem {
-    id: number;
-    image: string;
-}
 
 export interface AdminProfile {
     username: string;
@@ -15,21 +11,30 @@ export interface AdminProfile {
     email: string;
 }
 
+export interface PhotoItem {
+    id: number;
+    image: string;
+}
+
+export interface PageInfo {
+    page: number;
+    totalPages: number;
+}
+
 export interface FaceGroup {
     group_id: number;
     thumbnail: string;
     bbox: number[];
-    total_photos: number;
+    count: number;
 }
 
 export interface GroupPhotos {
     group_id: number;
-    total_photos: number;
-    images: PhotoItem[];
+    count: number;
+    photos: PhotoItem[];
 }
 
-export type Action = "view" | "faces" | "upload" | "delete";
-export type View = "all" | "group" | null;
+export type Tab = "all" | "groups" | "upload";
 
 const getAuthHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -37,31 +42,38 @@ const getAuthHeaders = () => ({
 
 interface AdminContextValue {
     adminProfile: AdminProfile | null;
+    activeTab: Tab;
+    error: string;
     photos: PhotoItem[];
     faceGroups: FaceGroup[];
-    view: View | null;
-    activeAction: Action;
     deleteMode: boolean;
     selected: number[];
-    error: string;
-    isLoading: boolean;
-    isUploading: boolean;
-    isGroupLoading: boolean;
     selectedGroup: GroupPhotos | null;
+    hoveredPhoto: number | null;
+    isLoading: boolean;
     isAllSelected: boolean;
+    showConfirm: boolean;
+    pageInfo: PageInfo;
+    sidebarOpen: boolean;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
-    handleGroupPhotos: (group_id: number) => void;
-    handleBackToGroups: () => void;
+    fetchPhotos: (page?: number) => Promise<void>; 
     handleViewAll: () => void;
     handleFaceGroups: () => void;
+    handleGroupPhotos: (group_id: number) => void;
+    handleBackToGroups: () => void;
     handleUpload: () => void;
-    handleDelete: () => void;
-    handleCancel: () => void;
     handleUploadPhotos: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+    setDeleteMode: (value: boolean) => void;
     handleDeletePhotos: () => Promise<void>;
-    handleLogout: () => void;
-    toggleSelect: (id: number) => void;
+    handleCancel: () => void;
+    setHoveredPhoto: React.Dispatch<React.SetStateAction<number | null>>;
+    setSelected: React.Dispatch<React.SetStateAction<number[]>>;
     handleSelectAllChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    toggleSelect: (id: number) => void;
+    setShowConfirm: React.Dispatch<React.SetStateAction<boolean>>;
+    handleConfirmDelete: (value: boolean) => void;
+    setSidebarOpen: (value: boolean) => void;
+    handleLogout: () => void;
 }
 
 const AdminContext = createContext<AdminContextValue | null>(null);
@@ -71,21 +83,22 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
+    const [activeTab, setActiveTab] = useState<Tab>("all");
+    const [error, setError] = useState("");
     const [photos, setPhotos] = useState<PhotoItem[]>([]);
     const [faceGroups, setFaceGroups] = useState<FaceGroup[]>([]);
-    const [view, setView] = useState<View>("all");
-    const [activeAction, setActiveAction] = useState<Action>("view");
-    const [deleteMode, setDeleteMode] = useState(false);
+    const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [selected, setSelected] = useState<number[]>([]);
-    const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [isGroupLoading, setIsGroupLoading] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<GroupPhotos | null>(null);
+    const [hoveredPhoto, setHoveredPhoto] = useState<number | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showConfirm, setShowConfirm] = useState<boolean>(false);
+    const [pageInfo, setPageInfo] = useState<PageInfo>({page: 1, totalPages: 1,});
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
     useEffect(() => {
         fetchAdminProfile();
-        fetchPhotos();
+        fetchPhotos(1);
     }, []);
 
     const handleAuthError = (err: any) => {
@@ -99,14 +112,14 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const fetchPhotos = async () => {
+    const fetchPhotos = async (currentPage = pageInfo.page) => {
         setError("");
         setDeleteMode(false);
-        setIsGroupLoading(false);
         setIsLoading(true);
         try {
-            const res = await axios.get(`${BACKEND_URL}/admin/view/`, { headers: getAuthHeaders() });
+            const res = await axios.get(`${BACKEND_URL}/admin/view/?page=${currentPage}&limit=20`, { headers: getAuthHeaders() });
             setPhotos(res.data.faces);
+            setPageInfo({page: res.data.page, totalPages: res.data.total_pages});
         } catch (err: any) {
             handleAuthError(err);
         } finally {
@@ -128,9 +141,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     const fetchFaceGroups = async () => {
         setError("");
-        setIsLoading(false);
+        setIsLoading(true);
         setDeleteMode(false);
-        setIsGroupLoading(true);
         try {
             const res = await axios.get(`${BACKEND_URL}/admin/facegroups/`, { headers: getAuthHeaders() });
             setFaceGroups(res.data.groups);
@@ -138,48 +150,83 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             setError("Failed to load face groups");
         }
         finally {
-            setIsGroupLoading(false);
+            setIsLoading(false);
         }
     };
 
     const handleUploadPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setError("");
         const files = e.target.files;
-        if (!files) return;
-        setView(null);
-        setActiveAction("upload");
-        setIsUploading(true);
+        if (!files)     return;
+        setDeleteMode(false);
+        setActiveTab("upload");
+        setIsLoading(true);
         const formData = new FormData();
         Array.from(files).forEach((file) => formData.append("files", file));
         try {
             await axios.post(`${BACKEND_URL}/admin/upload/`, formData, {
                 headers: { ...getAuthHeaders(), "Content-Type": "multipart/form-data" },
             });
-            await fetchPhotos();
+            setIsLoading(false);
+            toast.success(files.length > 1 ? "Photos Uploaded" : "Photo Uploaded");
+            await fetchPhotos(1);
         } catch (err: any) {
             handleAuthError(err);
+            setIsLoading(false);
         } finally {
-            setIsUploading(false);
+            setActiveTab("all");
             e.target.value = "";
         }
     };
 
     const handleDeletePhotos = async () => {
-        setView("all");
-        if (selected.length === 0) return;
+        setError("");
+        const count = selected.length;
+        if (count === 0) return;
         try {
             await axios.delete(`${BACKEND_URL}/admin/delete/`, {
                 headers: getAuthHeaders(),
                 data: selected,
             });
-            setPhotos((prev) => prev.filter((img) => !selected.includes(img.id)));
-            setSelected([]);
-            setDeleteMode(false);
-            setActiveAction("view");
+            toast.error(count > 1 ? "Photos deleted" : "Photo deleted");
+            await fetchFaceGroups();
+            
+            setSelectedGroup((prev) => prev ? {
+                    ...prev,
+                    photos: prev.photos.filter(
+                        (img) => !selected.includes(img.id)
+                    ),
+                    count: prev.count - count,
+                } : null
+            );
+            if (activeTab === "all") {
+                if (photos.length === count && pageInfo.page > 1) {
+                    await fetchPhotos(pageInfo.page - 1);
+                } else {
+                    await fetchPhotos(pageInfo.page);
+                }
+            } else {
+                setPhotos((prev) =>
+                    prev.filter((img) => !selected.includes(img.id))
+                );
+            }
         } catch (err: any) {
             handleAuthError(err);
+        } finally {
+            setDeleteMode(false);
+            setSelected([]);
         }
     };
+
+    const handleConfirmDelete = (value: boolean) => {
+        if(value) {
+            handleDeletePhotos();   
+        }
+        else {
+            setSelected([]);
+        }
+        setShowConfirm(false);
+    }
 
     const handleGroupPhotos = async (group_id: number) => {
         setError("");
@@ -202,20 +249,19 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     const handleViewAll = () => {
         setDeleteMode(false);
         setError("");
-        setActiveAction("view");
-        if(view === "all" && photos.length > 0)      return; 
-        setView("all"); 
-        fetchPhotos();
-        setActiveAction("view"); 
+        setSelected([]);
+        if(activeTab === "all" && photos.length > 0)      return; 
+        setActiveTab("all");
+        fetchPhotos(1);
     };
 
     const handleFaceGroups = () => { 
         setDeleteMode(false);
         setError("");
         setSelectedGroup(null);
-        if(activeAction === "faces")    return;
-        setActiveAction("faces");
-        setView("group");
+        setSelected([]);
+        if(activeTab === "groups")    return;
+        setActiveTab("groups");
         fetchFaceGroups();
     };
 
@@ -223,21 +269,9 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         fileInputRef.current?.click();
     };
 
-    const handleDelete = () => { 
-        setDeleteMode(true);
-        setIsGroupLoading(false);
-        if(activeAction === "delete")     return;
-        setView("all");
-        setSelected([]); 
-        setError(""); 
-        setActiveAction("delete"); 
-    };
-
     const handleCancel = () => { 
-        setView("all"); 
         setSelected([]); 
         setDeleteMode(false); 
-        setActiveAction("view"); 
     };
 
     const handleLogout = () => { 
@@ -250,24 +284,29 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
             ? prev.filter((i) => i !== id) 
             : [...prev, id]);
     }
+    
+    const currentPhotos = activeTab === "groups" ? selectedGroup?.photos ?? [] : photos;
 
-    const isAllSelected = photos.length > 0 && selected.length === photos.length;
+    const isAllSelected =  currentPhotos.length > 0 && selected.length === currentPhotos.length;
 
-    const handleSelectAllChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSelected(e.target.checked 
-            ? photos.map((p) => p.id) 
-            : []);
-    }
+    const handleSelectAllChange = (e: any) => {
+        const currentPhotos = activeTab === "groups"
+            ? selectedGroup?.photos ?? []
+            : photos;
+
+        setSelected(e.target.checked ? currentPhotos.map((p) => p.id) : []);
+    };
 
     return (
         <AdminContext.Provider value={{
-            adminProfile, photos, faceGroups, view, activeAction,
-            deleteMode, selected, error, isLoading, isUploading,
-            isAllSelected, fileInputRef,selectedGroup, isGroupLoading, 
-            handleGroupPhotos, handleBackToGroups, handleViewAll, 
-            handleFaceGroups, handleUpload, handleDelete,
-            handleCancel, handleUploadPhotos, handleDeletePhotos,
-            handleLogout, toggleSelect, handleSelectAllChange,
+            adminProfile, activeTab, error, photos, faceGroups,
+            deleteMode, selectedGroup, selected, hoveredPhoto, isLoading,
+            isAllSelected, fileInputRef, showConfirm, pageInfo, sidebarOpen, 
+            fetchPhotos, handleViewAll, handleFaceGroups, handleGroupPhotos, 
+            handleBackToGroups, handleUpload, handleCancel, handleUploadPhotos, 
+            setDeleteMode , handleDeletePhotos, setSelected, setHoveredPhoto, 
+            toggleSelect, handleSelectAllChange, setShowConfirm, 
+            handleConfirmDelete, setSidebarOpen, handleLogout
         }}>
             {children}
         </AdminContext.Provider>

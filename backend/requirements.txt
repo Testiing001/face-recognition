@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+python-dotenv
+python-multipart
+pydantic
+passlib
+bcrypt
+PyJWT
+mysql-connector-python
+numpy
+opencv-python-headless
+pillow
+insightface
+onnxruntime
+scikit-learn
+scipy
+requests
