@@ -2,10 +2,6 @@ import mysql.connector
 from mysql.connector import Error
 from fastapi import HTTPException
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 def get_db_connection():
     try:

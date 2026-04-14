@@ -3,11 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from datetime import datetime, timedelta, timezone
 import jwt
 import os
-from dotenv import load_dotenv
 from app.db.connection import get_db_connection
 from app.utils.security import verify_password
-
-load_dotenv()
 
 router = APIRouter()
 

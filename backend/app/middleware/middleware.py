@@ -1,9 +1,6 @@
 import os
 from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from dotenv import load_dotenv
-
-load_dotenv()
 
 origins = os.getenv("ALLOWED_ORIGINS").split(",")
 
