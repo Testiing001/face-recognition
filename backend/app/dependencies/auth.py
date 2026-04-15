@@ -3,9 +3,6 @@ import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from app.db.connection import get_db_connection
-from dotenv import load_dotenv
-
-load_dotenv()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
